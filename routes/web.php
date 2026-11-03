@@ -14,3 +14,5 @@ Route::resource('todos', TodoController::class)
 Route::patch('todos/{todo}/toggle', [TodoController::class, 'toggle'])->name('todos.toggle');
 Route::post('todos/clear-completed', [TodoController::class, 'clearCompleted'])->name('todos.clearCompleted');
 Route::post('todos/mark-all-completed', [TodoController::class, 'markAllCompleted'])->name('todos.markAllCompleted');
+Route::post('todos/bulk/clear-completed', [TodoController::class, 'clearCompleted']);
+Route::post('todos/bulk/complete-all', [TodoController::class, 'markAllCompleted']);

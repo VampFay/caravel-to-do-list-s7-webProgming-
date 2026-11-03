@@ -980,7 +980,7 @@
             <!-- Duolingo-Tactile Command Bar (Instant Optimistic Submission) -->
             <div class="rounded-3xl p-4 mb-6 transition-all border shadow-lg glass-panel"
                  style="border-color: var(--glass-border);">
-                <form id="add-task-form" onsubmit="handleAddTaskAsync(event)">
+                <form action="{{ route('todos.store') }}" method="POST" id="add-task-form" onsubmit="handleAddTaskAsync(event)">
                     @csrf
                     <input type="hidden" name="filter" value="{{ $filter }}">
                     <input type="hidden" name="filter_priority" value="{{ $priority }}">
@@ -1867,26 +1867,40 @@
             event.preventDefault();
             unlockAudioSafely();
 
-            const form = event.target;
+            const form = event.target.tagName === 'FORM' ? event.target : document.getElementById('add-task-form');
             const titleInput = document.getElementById('task-title-input');
             const priSelect = document.getElementById('task-priority-select');
             const dateInput = document.getElementById('task-due-date-input');
             const catInput = document.getElementById('task-category-input');
             const descInput = document.getElementById('task-desc-input');
 
+            // 1. Capture values FIRST before clearing!
             const title = titleInput.value.trim();
             if (!title) return;
 
-            playTaskAddSound();
+            const priority = priSelect ? priSelect.value : 'medium';
+            const due_date = dateInput ? dateInput.value : '';
+            const category = catInput ? catInput.value.trim() : '';
+            const description = descInput ? descInput.value.trim() : '';
 
+            // 2. Construct FormData with captured values
+            const formData = new FormData(form);
+            formData.set('title', title);
+            formData.set('priority', priority);
+            if (due_date) formData.set('due_date', due_date);
+            if (category) formData.set('category', category);
+            if (description) formData.set('description', description);
+
+            // 3. Clear inputs safely
             titleInput.value = '';
             if (descInput) descInput.value = '';
-            document.getElementById('notes-field').classList.add('hidden');
+            const notesField = document.getElementById('notes-field');
+            if (notesField) notesField.classList.add('hidden');
 
-            const formData = new FormData(form);
+            playTaskAddSound();
 
             try {
-                const response = await fetch('/todos', {
+                const response = await fetch("{{ route('todos.store') }}", {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': CSRF_TOKEN,
@@ -1894,6 +1908,22 @@
                     },
                     body: formData
                 });
+
+                if (response.status === 419) {
+                    // Session / CSRF token refresh fallback
+                    titleInput.value = title;
+                    form.submit();
+                    return;
+                }
+
+                if (!response.ok) {
+                    const err = await response.json().catch(() => ({}));
+                    const msg = err.message || 'Could not add task. Please try again.';
+                    showLiveToast(`⚠️ ${msg}`);
+                    titleInput.value = title;
+                    return;
+                }
+
                 const data = await response.json();
 
                 if (data.success && data.todo) {
@@ -1916,6 +1946,7 @@
                             : '<span class="font-mono text-[9px] px-2 py-0.5 rounded-md bg-slate-500/10 border border-slate-500/20 font-bold tracking-tight" style="color: var(--text-muted)">LOW</span>');
 
                     let catBadge = todo.category ? `<span class="font-mono text-[10px] px-2 py-0.5 rounded-md border font-semibold" style="background: var(--tag-glass); border-color: var(--tag-border); color: var(--tag-text);">#${todo.category}</span>` : '';
+                    let dateBadge = todo.due_date ? `<span class="font-mono text-[10px]" style="color: var(--text-muted);">${todo.due_date}</span>` : '';
                     let descHtml = todo.description ? `<p id="desc-text-${todo.id}" class="text-xs mt-1.5 line-clamp-1 font-mono" style="color: var(--text-secondary)">${todo.description}</p>` : '';
 
                     card.innerHTML = `
@@ -1932,6 +1963,7 @@
                                     ${priBadge}
                                     <span id="title-text-${todo.id}" class="text-sm font-bold tracking-tight break-words" style="color: var(--text-primary);">${todo.title}</span>
                                     ${catBadge}
+                                    ${dateBadge}
                                 </div>
                                 ${descHtml}
                             </div>
@@ -1946,6 +1978,27 @@
                                 </button>
                             </div>
                         </div>
+                        <div id="edit-mode-${todo.id}" class="hidden pt-2">
+                            <form onsubmit="handleEditAsync(event, ${todo.id})" class="space-y-2.5 p-3 rounded-xl border glass-panel" style="border-color: var(--glass-border);">
+                                <input type="text" name="title" id="edit-title-${todo.id}" value="${todo.title}" required
+                                       class="w-full text-xs font-semibold rounded-lg p-2 border outline-none focus:ring-2 focus:ring-indigo-500/30 glass-panel"
+                                       style="border-color: var(--glass-border); color: var(--text-primary)">
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-xs">
+                                    <select name="priority" id="edit-priority-${todo.id}" class="rounded-lg p-1.5 border outline-none glass-panel" style="border-color: var(--glass-border); color: var(--text-secondary)">
+                                        <option value="low" ${todo.priority === 'low' ? 'selected' : ''}>Low (I)</option>
+                                        <option value="medium" ${todo.priority === 'medium' ? 'selected' : ''}>Medium (II)</option>
+                                        <option value="high" ${todo.priority === 'high' ? 'selected' : ''}>High (III)</option>
+                                    </select>
+                                    <input type="date" name="due_date" id="edit-due-date-${todo.id}" value="${todo.due_date || ''}" class="rounded-lg p-1.5 border outline-none glass-panel" style="border-color: var(--glass-border); color: var(--text-secondary)">
+                                    <input type="text" name="category" id="edit-category-${todo.id}" value="${todo.category || ''}" placeholder="Tag" class="rounded-lg p-1.5 border outline-none glass-panel" style="border-color: var(--glass-border); color: var(--text-secondary)">
+                                </div>
+                                <textarea name="description" id="edit-desc-${todo.id}" rows="2" placeholder="Notes…" class="w-full font-mono text-xs rounded-lg p-2 border outline-none glass-panel" style="border-color: var(--glass-border); color: var(--text-primary)">${todo.description || ''}</textarea>
+                                <div class="flex items-center justify-end gap-2 pt-1 text-xs">
+                                    <button type="button" onclick="hideEditMode(${todo.id})" class="px-2 py-1 font-mono hover:underline" style="color: var(--text-muted)">Cancel</button>
+                                    <button type="submit" class="duo-btn-green text-slate-950 font-bold px-3.5 py-1.5 rounded-lg transition-colors">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
                     `;
 
                     container.prepend(card);
@@ -1954,6 +2007,8 @@
                 }
             } catch (err) {
                 console.error('Error adding task:', err);
+                titleInput.value = title;
+                showLiveToast('⚠️ Network error adding task.');
             }
         }
 
@@ -2047,7 +2102,7 @@
             });
 
             try {
-                const response = await fetch('/todos/bulk/complete-all', {
+                const response = await fetch("{{ route('todos.markAllCompleted') }}", {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': CSRF_TOKEN,
@@ -2072,7 +2127,7 @@
             });
 
             try {
-                const response = await fetch('/todos/bulk/clear-completed', {
+                const response = await fetch("{{ route('todos.clearCompleted') }}", {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': CSRF_TOKEN,
