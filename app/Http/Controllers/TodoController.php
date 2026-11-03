@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Todo;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -13,7 +14,7 @@ class TodoController extends Controller
     /**
      * Display a listing of todos with filters and stats.
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|JsonResponse
     {
         $filter = $request->query('filter', 'all');
         $priority = $request->query('priority', 'all');
@@ -35,19 +36,7 @@ class TodoController extends Controller
         };
 
         $todos = $query->get();
-
-        // Optimized aggregate metrics
-        $stats = Todo::toBase()
-            ->selectRaw('COUNT(*) as total, SUM(CASE WHEN completed = 1 THEN 1 ELSE 0 END) as completed')
-            ->first();
-
-        $totalCount = (int) ($stats->total ?? 0);
-        $completedCount = (int) ($stats->completed ?? 0);
-        $remainingCount = max(0, $totalCount - $completedCount);
-        $completionPercentage = $totalCount > 0 ? (int) round(($completedCount / $totalCount) * 100) : 0;
-
-        $todayCount = Todo::whereDate('due_date', Carbon::today())->where('completed', false)->count();
-        $importantCount = Todo::where('priority', 'high')->where('completed', false)->count();
+        $stats = $this->getStats();
 
         $categories = Todo::whereNotNull('category')
             ->where('category', '!=', '')
@@ -56,6 +45,14 @@ class TodoController extends Controller
             ->orderBy('category')
             ->get();
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'todos' => $todos,
+                'stats' => $stats,
+                'categories' => $categories,
+            ]);
+        }
+
         return view('todos.index', [
             'todos' => $todos,
             'filter' => $filter,
@@ -63,12 +60,12 @@ class TodoController extends Controller
             'category' => $category,
             'search' => $search,
             'sort' => $sort,
-            'totalCount' => $totalCount,
-            'completedCount' => $completedCount,
-            'remainingCount' => $remainingCount,
-            'todayCount' => $todayCount,
-            'importantCount' => $importantCount,
-            'completionPercentage' => $completionPercentage,
+            'totalCount' => $stats['total'],
+            'completedCount' => $stats['completed'],
+            'remainingCount' => $stats['remaining'],
+            'todayCount' => $stats['today'],
+            'importantCount' => $stats['important'],
+            'completionPercentage' => $stats['completionPercentage'],
             'categories' => $categories,
         ]);
     }
@@ -76,7 +73,7 @@ class TodoController extends Controller
     /**
      * Store a new todo.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse|JsonResponse
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
@@ -92,7 +89,16 @@ class TodoController extends Controller
         $validated['category'] = filled($validated['category'] ?? null) ? trim($validated['category']) : null;
         $validated['due_date'] = filled($validated['due_date'] ?? null) ? $validated['due_date'] : null;
 
-        Todo::create($validated);
+        $todo = Todo::create($validated);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Task added successfully!',
+                'todo' => $todo,
+                'stats' => $this->getStats(),
+            ], 201);
+        }
 
         return $this->redirectWithParams($request, 'Task added successfully!');
     }
@@ -100,7 +106,7 @@ class TodoController extends Controller
     /**
      * Update an existing todo.
      */
-    public function update(Request $request, Todo $todo): RedirectResponse
+    public function update(Request $request, Todo $todo): RedirectResponse|JsonResponse
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
@@ -118,17 +124,35 @@ class TodoController extends Controller
 
         $todo->update($validated);
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Task updated successfully!',
+                'todo' => $todo,
+                'stats' => $this->getStats(),
+            ]);
+        }
+
         return $this->redirectWithParams($request, 'Task updated successfully!');
     }
 
     /**
      * Toggle the completed status.
      */
-    public function toggle(Request $request, Todo $todo): RedirectResponse
+    public function toggle(Request $request, Todo $todo): RedirectResponse|JsonResponse
     {
         $todo->update(['completed' => ! $todo->completed]);
 
         $message = $todo->completed ? 'Task completed!' : 'Task reopened.';
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'todo' => $todo,
+                'stats' => $this->getStats(),
+            ]);
+        }
 
         return $this->redirectWithParams($request, $message);
     }
@@ -136,9 +160,19 @@ class TodoController extends Controller
     /**
      * Delete a todo.
      */
-    public function destroy(Request $request, Todo $todo): RedirectResponse
+    public function destroy(Request $request, Todo $todo): RedirectResponse|JsonResponse
     {
+        $todoId = $todo->id;
         $todo->delete();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Task deleted.',
+                'deleted_id' => $todoId,
+                'stats' => $this->getStats(),
+            ]);
+        }
 
         return $this->redirectWithParams($request, 'Task deleted.');
     }
@@ -146,9 +180,18 @@ class TodoController extends Controller
     /**
      * Clear all completed todos.
      */
-    public function clearCompleted(Request $request): RedirectResponse
+    public function clearCompleted(Request $request): RedirectResponse|JsonResponse
     {
         $count = Todo::where('completed', true)->delete();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $count > 0 ? "Cleared {$count} completed tasks!" : 'No completed tasks to clear.',
+                'cleared_count' => $count,
+                'stats' => $this->getStats(),
+            ]);
+        }
 
         return $this->redirectWithParams($request, $count > 0 ? "Cleared {$count} completed tasks!" : 'No completed tasks to clear.');
     }
@@ -156,11 +199,47 @@ class TodoController extends Controller
     /**
      * Mark all active todos as completed.
      */
-    public function markAllCompleted(Request $request): RedirectResponse
+    public function markAllCompleted(Request $request): RedirectResponse|JsonResponse
     {
         $updated = Todo::where('completed', false)->update(['completed' => true]);
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $updated > 0 ? 'All tasks completed!' : 'All tasks are already completed.',
+                'updated_count' => $updated,
+                'stats' => $this->getStats(),
+            ]);
+        }
+
         return $this->redirectWithParams($request, $updated > 0 ? 'All tasks completed!' : 'All tasks are already completed.');
+    }
+
+    /**
+     * Calculate and return key metrics.
+     */
+    protected function getStats(): array
+    {
+        $stats = Todo::toBase()
+            ->selectRaw('COUNT(*) as total, SUM(CASE WHEN completed = 1 THEN 1 ELSE 0 END) as completed')
+            ->first();
+
+        $totalCount = (int) ($stats->total ?? 0);
+        $completedCount = (int) ($stats->completed ?? 0);
+        $remainingCount = max(0, $totalCount - $completedCount);
+        $completionPercentage = $totalCount > 0 ? (int) round(($completedCount / $totalCount) * 100) : 0;
+
+        $todayCount = Todo::whereDate('due_date', Carbon::today())->where('completed', false)->count();
+        $importantCount = Todo::where('priority', 'high')->where('completed', false)->count();
+
+        return [
+            'total' => $totalCount,
+            'completed' => $completedCount,
+            'remaining' => $remainingCount,
+            'completionPercentage' => $completionPercentage,
+            'today' => $todayCount,
+            'important' => $importantCount,
+        ];
     }
 
     /**

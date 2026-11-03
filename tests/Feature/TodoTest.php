@@ -232,4 +232,34 @@ class TodoTest extends TestCase
 
         $response->assertStatus(404);
     }
+
+    public function test_json_can_create_and_toggle_todo(): void
+    {
+        $response = $this->postJson(route('todos.store'), [
+            'title' => 'Instant reactive task',
+            'priority' => 'high',
+        ]);
+
+        $response->assertStatus(201);
+        $response->assertJson([
+            'success' => true,
+            'todo' => [
+                'title' => 'Instant reactive task',
+                'priority' => 'high',
+                'completed' => false,
+            ],
+        ]);
+
+        $todoId = $response->json('todo.id');
+
+        $toggleResponse = $this->patchJson(route('todos.toggle', $todoId));
+        $toggleResponse->assertStatus(200);
+        $toggleResponse->assertJson([
+            'success' => true,
+            'todo' => [
+                'id' => $todoId,
+                'completed' => true,
+            ],
+        ]);
+    }
 }
