@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full dark">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +11,24 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Canvas Confetti CDN -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    
+    <!-- Theme Script to Prevent Flash of Wrong Theme -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('fay_theme');
+            if (savedTheme === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                // Default to dark or light based on preference
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -41,21 +59,90 @@
             }
         }
     </script>
+
     <style>
+        /* CSS Variables for Seamless Light & Dark Modes */
+        :root {
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f1f5f9;
+            --bg-sidebar: #ffffff;
+            --border-subtle: #e2e8f0;
+            --border-card: #e5e7eb;
+            --border-card-hover: #cbd5e1;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --card-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+            --btn-card-bg: #f8fafc;
+            --btn-card-border: #e2e8f0;
+            --btn-card-shadow: #cbd5e1;
+            --input-bg: #ffffff;
+            --input-border: #cbd5e1;
+            --metric-bg: #f1f5f9;
+            --metric-border: #e2e8f0;
+            --tag-bg: #f1f5f9;
+            --tag-border: #e2e8f0;
+            --tag-text: #475569;
+            --pill-active-bg: #ffffff;
+            --pill-active-border: #cbd5e1;
+            --pill-active-text: #0f172a;
+            --pill-active-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            --calendar-inactive-bg: #f1f5f9;
+            --calendar-inactive-border: #e2e8f0;
+            --calendar-inactive-text: #94a3b8;
+            --accent-glow: rgba(88, 204, 2, 0.2);
+            --shimmer-track: #e2e8f0;
+        }
+
+        html.dark {
+            --bg-page: #08090d;
+            --bg-card: #0e1118;
+            --bg-card-hover: #141822;
+            --bg-sidebar: #0b0d13;
+            --border-subtle: #181d29;
+            --border-card: #1a1f2c;
+            --border-card-hover: #2b354d;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --card-shadow: 0 10px 28px -4px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(99, 102, 241, 0.18);
+            --btn-card-bg: #121622;
+            --btn-card-border: #20273a;
+            --btn-card-shadow: #1d2436;
+            --input-bg: #10131a;
+            --input-border: #1e2433;
+            --metric-bg: #0e1118;
+            --metric-border: #1a1f2c;
+            --tag-bg: #141822;
+            --tag-border: #1e2433;
+            --tag-text: #94a3b8;
+            --pill-active-bg: #181e2b;
+            --pill-active-border: #273045;
+            --pill-active-text: #ffffff;
+            --pill-active-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            --calendar-inactive-bg: #181e2b;
+            --calendar-inactive-border: #2b354a;
+            --calendar-inactive-text: #64748b;
+            --accent-glow: rgba(99, 102, 241, 0.18);
+            --shimmer-track: #1b202e;
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: #08090d;
-            color: #f1f5f9;
+            background-color: var(--bg-page);
+            color: var(--text-primary);
             letter-spacing: -0.011em;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* 3D Duolingo Tactile Push Buttons */
         .duo-btn-green {
             background-color: #58cc02;
             box-shadow: 0 4px 0 0 #46a302;
-            transition: all 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         .duo-btn-green:hover {
             background-color: #61e002;
@@ -70,7 +157,7 @@
         .duo-btn-primary {
             background-color: #6366f1;
             box-shadow: 0 4px 0 0 #4338ca;
-            transition: all 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         .duo-btn-primary:hover {
             background-color: #4f46e5;
@@ -82,34 +169,19 @@
             box-shadow: 0 1px 0 0 #4338ca;
         }
 
-        .duo-btn-blue {
-            background-color: #1cb0f6;
-            box-shadow: 0 4px 0 0 #1899d6;
-            transition: all 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .duo-btn-blue:hover {
-            background-color: #2ec0ff;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 0 0 #1899d6;
-        }
-        .duo-btn-blue:active {
-            transform: translateY(3px);
-            box-shadow: 0 1px 0 0 #1899d6;
-        }
-
         .duo-btn-card {
-            background-color: #121622;
-            box-shadow: 0 3px 0 0 #1d2436;
+            background-color: var(--btn-card-bg);
+            border: 1px solid var(--btn-card-border);
+            box-shadow: 0 3px 0 0 var(--btn-card-shadow);
             transition: all 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         .duo-btn-card:hover {
-            background-color: #171d2c;
             transform: translateY(-1.5px);
-            box-shadow: 0 5px 0 0 #1d2436;
+            box-shadow: 0 5px 0 0 var(--btn-card-shadow);
         }
         .duo-btn-card:active {
             transform: translateY(2px);
-            box-shadow: 0 1px 0 0 #1d2436;
+            box-shadow: 0 1px 0 0 var(--btn-card-shadow);
         }
 
         /* Animated Flame with Sparkles */
@@ -226,13 +298,13 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
             animation: shimmer-sweep 2s infinite ease-in-out;
         }
 
         /* Checkbox Bounce Pop */
         .checkbox-bounce {
-            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
         }
         .checkbox-bounce:hover {
             transform: scale(1.22) rotate(6deg);
@@ -242,19 +314,43 @@
             transform: scale(0.85);
         }
 
-        /* Task Card Hover Spring */
+        /* Task Card Hover Spring & Shadow */
         .task-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-card);
+            box-shadow: var(--card-shadow);
             transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
         }
         .task-card:hover {
             transform: translateY(-3px) scale(1.004);
-            box-shadow: 0 10px 28px -4px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(99, 102, 241, 0.18);
+            border-color: var(--border-card-hover);
+            box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.12), 0 0 0 1px var(--accent-glow);
+        }
+        html.dark .task-card:hover {
+            box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--accent-glow);
+        }
+
+        /* Staggered Entrance for Tasks */
+        @keyframes fadeInUpStagger {
+            from {
+                opacity: 0;
+                transform: translateY(12px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .task-stagger {
+            animation: fadeInUpStagger 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
 
         /* Strikethrough Smooth Draw Transition */
         .task-done {
             text-decoration: line-through;
-            color: #475569 !important;
+            text-decoration-color: #58cc02;
+            text-decoration-thickness: 2px;
+            color: var(--text-muted) !important;
             transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
@@ -291,26 +387,34 @@
             box-shadow: 0 0 12px rgba(255, 150, 0, 0.5);
         }
 
+        /* Theme Toggle Icon Spin */
+        .theme-icon-spin {
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .theme-icon-spin:active {
+            transform: rotate(360deg) scale(0.8);
+        }
+
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #0b0d13;
+            background: transparent;
         }
         ::-webkit-scrollbar-thumb {
-            background: #1e2638;
+            background: var(--border-subtle);
             border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #2f3b55;
+            background: var(--text-muted);
         }
     </style>
 </head>
-<body class="min-h-full flex flex-col md:flex-row bg-[#08090d] text-slate-100 antialiased selection:bg-indigo-500/30 selection:text-indigo-200 relative overflow-x-hidden">
+<body class="min-h-full flex flex-col md:flex-row antialiased selection:bg-indigo-500/30 selection:text-indigo-400 relative overflow-x-hidden">
 
-    <!-- Ambient Subtle Firefly Particles in Background -->
+    <!-- Ambient Subtle Particles in Background -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden z-0 opacity-40">
         <div class="particle bg-indigo-500/40 w-1.5 h-1.5" style="top: 80%; left: 15%; animation-delay: 0s;"></div>
         <div class="particle bg-amber-400/40 w-2 h-2" style="top: 70%; left: 45%; animation-delay: 2s;"></div>
@@ -320,30 +424,36 @@
     </div>
 
     <!-- Mobile Top Header Bar -->
-    <header class="md:hidden flex items-center justify-between bg-[#0e1017] border-b border-[#1a1f2c] px-4 py-3 sticky top-0 z-30">
+    <header class="md:hidden flex items-center justify-between border-b px-4 py-3 sticky top-0 z-30 transition-colors duration-300"
+            style="background-color: var(--bg-card); border-color: var(--border-subtle);">
         <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-duo-green to-emerald-400 border border-emerald-300/30 flex items-center justify-center text-slate-950 font-mono text-sm font-extrabold shadow-sm">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-duo-green to-emerald-400 border border-emerald-300/30 flex items-center justify-center text-slate-950 font-mono text-sm font-extrabold shadow-xs">
                 F
             </div>
             <div>
-                <span class="font-bold text-slate-100 text-sm tracking-tight block leading-none">Fay Tasks</span>
-                <span class="font-mono text-[9px] text-amber-400 font-semibold leading-none">⚡️ Lvl <span id="mobile-lvl-val">3</span></span>
+                <span class="font-bold text-sm tracking-tight block leading-none" style="color: var(--text-primary)">Fay Tasks</span>
+                <span class="font-mono text-[9px] text-amber-500 font-semibold leading-none">⚡️ Lvl <span id="mobile-lvl-val">3</span></span>
             </div>
         </div>
         
-        <!-- Mobile Streak, Chest & Sound -->
-        <div class="flex items-center gap-2">
+        <!-- Mobile Streak, Chest, Theme & Sound -->
+        <div class="flex items-center gap-1.5">
+            <!-- Theme Toggle Mobile -->
+            <button type="button" onclick="toggleTheme()" title="Toggle Theme" class="p-1.5 text-slate-400 hover:text-amber-500 theme-icon-spin">
+                <span id="mobile-theme-icon" class="text-base">☀️</span>
+            </button>
             <button type="button" onclick="openMysteryChest()" title="Claim Daily Reward" class="text-base animate-chest p-1">
                 🎁
             </button>
-            <div class="flex items-center gap-1 bg-[#151924] border border-[#232b3d] px-2.5 py-1 rounded-full text-xs font-mono font-bold text-amber-400">
+            <div class="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-mono font-bold text-amber-500 border"
+                 style="background-color: var(--metric-bg); border-color: var(--border-subtle);">
                 <span class="animate-flame">🔥</span>
                 <span id="mobile-streak-val">3</span>
             </div>
-            <button type="button" onclick="toggleAudio()" id="mobile-audio-btn" title="Toggle Sound" class="p-1.5 text-slate-400 hover:text-white">
+            <button type="button" onclick="toggleAudio()" id="mobile-audio-btn" title="Toggle Sound" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white">
                 🔊
             </button>
-            <button type="button" onclick="document.getElementById('sidebar').classList.toggle('hidden')" class="p-1.5 text-slate-400 hover:text-white">
+            <button type="button" onclick="document.getElementById('sidebar').classList.toggle('hidden')" class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                 </svg>
@@ -352,228 +462,252 @@
     </header>
 
     <!-- Sidebar Navigation -->
-    <aside id="sidebar" class="hidden md:flex flex-col w-64 lg:w-72 bg-[#0b0d13] border-r border-[#181d29] shrink-0 h-screen sticky top-0 p-4 select-none overflow-y-auto z-20">
+    <aside id="sidebar" class="hidden md:flex flex-col w-64 lg:w-72 border-r shrink-0 h-screen sticky top-0 p-4 select-none overflow-y-auto z-20 transition-colors duration-300"
+           style="background-color: var(--bg-sidebar); border-color: var(--border-subtle);">
         
-        <!-- Workspace Identification -->
-        <div class="flex items-center justify-between px-2.5 py-2 mb-4 rounded-xl bg-[#12151e] border border-[#1b212f]">
+        <!-- Workspace Identification & Theme Switcher -->
+        <div class="flex items-center justify-between px-2.5 py-2 mb-4 rounded-2xl border"
+             style="background-color: var(--metric-bg); border-color: var(--border-subtle);">
             <div class="flex items-center gap-2.5 min-w-0">
                 <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-xs font-mono font-bold text-xs shrink-0">
                     F
                 </div>
                 <div class="min-w-0">
-                    <h2 class="font-bold text-xs text-slate-200 truncate leading-none">Fay Tasks</h2>
-                    <p class="font-mono text-[10px] text-slate-500 mt-1 leading-none truncate">Focus & Flow Workspace</p>
+                    <h2 class="font-bold text-xs truncate leading-none" style="color: var(--text-primary)">Fay Tasks</h2>
+                    <p class="font-mono text-[10px] mt-1 leading-none truncate" style="color: var(--text-muted)">Focus Workspace</p>
                 </div>
             </div>
-            <button type="button" onclick="toggleShortcutsModal()" title="Keyboard Shortcuts (?)" class="font-mono text-[9px] uppercase px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500/20 font-semibold transition">
-                ? Keys
+
+            <!-- Theme Toggle Pill Button -->
+            <button type="button" onclick="toggleTheme()" id="theme-toggle-btn" title="Toggle Light / Dark Mode"
+                    class="flex items-center gap-1 font-mono text-[10px] px-2 py-1 rounded-lg border font-semibold transition active:scale-90 theme-icon-spin"
+                    style="background-color: var(--bg-card); border-color: var(--border-card); color: var(--text-secondary);">
+                <span id="theme-icon">☀️</span>
+                <span id="theme-label">Light</span>
             </button>
         </div>
 
         <!-- Duolingo Streak, XP & Level Card -->
-        <div class="mb-4 p-3.5 rounded-2xl bg-gradient-to-b from-[#141824] via-[#10141f] to-[#0d1017] border border-[#232a3d] shadow-xs">
+        <div class="mb-4 p-3.5 rounded-2xl border shadow-xs"
+             style="background-color: var(--metric-bg); border-color: var(--border-subtle);">
             
             <!-- Streak Header -->
             <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2">
                     <span class="text-2xl animate-flame">🔥</span>
                     <div>
-                        <span class="font-mono text-xs font-extrabold text-amber-400 leading-none block">
+                        <span class="font-mono text-xs font-extrabold text-amber-500 leading-none block">
                             <span id="streak-counter">3</span> Day Streak!
                         </span>
-                        <span class="text-[9px] text-slate-400 font-mono">Unstoppable pace</span>
+                        <span class="text-[9px] font-mono" style="color: var(--text-muted)">Unstoppable pace</span>
                     </div>
                 </div>
 
                 <!-- Sound Toggle Button -->
                 <button type="button" onclick="toggleAudio()" id="audio-toggle-btn" title="Toggle audio chime"
-                        class="text-[10px] px-2 py-0.5 rounded-md bg-[#1b2130] hover:bg-[#252e42] border border-[#2a344a] text-slate-300 font-mono transition active:scale-95">
+                        class="text-[10px] px-2 py-0.5 rounded-md border font-mono transition active:scale-95"
+                        style="background-color: var(--bg-card); border-color: var(--border-card); color: var(--text-secondary);">
                     🔊 Sound
                 </button>
             </div>
 
             <!-- Duolingo 7-Day Weekly Streak Row -->
-            <div class="mt-2.5 mb-3 bg-[#0a0c12] border border-[#1b2130] rounded-xl p-2">
-                <div class="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1.5 px-0.5">
-                    <span class="text-[9px] uppercase tracking-wider text-slate-500 font-semibold">Streak Calendar</span>
-                    <span class="text-[9px] text-sky-400 font-bold flex items-center gap-1 cursor-pointer" onclick="triggerFreezeShield()" title="1 Streak Freeze Active">
+            <div class="mt-2.5 mb-3 rounded-xl p-2 border"
+                 style="background-color: var(--bg-card); border-color: var(--border-card);">
+                <div class="flex items-center justify-between text-[10px] font-mono mb-1.5 px-0.5">
+                    <span class="text-[9px] uppercase tracking-wider font-bold" style="color: var(--text-muted)">Streak Calendar</span>
+                    <span class="text-[9px] text-sky-500 font-bold flex items-center gap-1 cursor-pointer hover:underline" onclick="triggerFreezeShield()" title="1 Streak Freeze Active">
                         <span>🧊</span> 1 Shield
                     </span>
                 </div>
                 <div class="grid grid-cols-7 gap-1 text-center font-mono text-[10px]">
                     <!-- M -->
                     <div class="flex flex-col items-center">
-                        <span class="text-[9px] text-slate-500 mb-0.5">M</span>
+                        <span class="text-[9px] mb-0.5" style="color: var(--text-muted)">M</span>
                         <div class="w-6 h-6 rounded-full streak-active-node flex items-center justify-center text-slate-950 font-bold text-[10px] transition-transform hover:scale-110">✓</div>
                     </div>
                     <!-- T -->
                     <div class="flex flex-col items-center">
-                        <span class="text-[9px] text-slate-500 mb-0.5">T</span>
+                        <span class="text-[9px] mb-0.5" style="color: var(--text-muted)">T</span>
                         <div class="w-6 h-6 rounded-full streak-active-node flex items-center justify-center text-slate-950 font-bold text-[10px] transition-transform hover:scale-110">✓</div>
                     </div>
-                    <!-- W -->
+                    <!-- W (Today) -->
                     <div class="flex flex-col items-center">
-                        <span class="text-[9px] text-amber-400 font-bold mb-0.5">W</span>
-                        <div class="w-6 h-6 rounded-full streak-active-node ring-2 ring-amber-300/80 flex items-center justify-center text-slate-950 font-bold text-[10px] animate-pulse">🔥</div>
+                        <span class="text-[9px] text-amber-500 font-bold mb-0.5">W</span>
+                        <div class="w-6 h-6 rounded-full streak-active-node ring-2 ring-amber-300 flex items-center justify-center text-slate-950 font-bold text-[10px] animate-pulse">🔥</div>
                     </div>
                     <!-- T -->
                     <div class="flex flex-col items-center">
-                        <span class="text-[9px] text-slate-500 mb-0.5">T</span>
-                        <div class="w-6 h-6 rounded-full bg-[#181e2b] border border-[#2b354a] flex items-center justify-center text-slate-600 text-[9px]">•</div>
+                        <span class="text-[9px] mb-0.5" style="color: var(--text-muted)">T</span>
+                        <div class="w-6 h-6 rounded-full border flex items-center justify-center text-[9px]"
+                             style="background-color: var(--calendar-inactive-bg); border-color: var(--calendar-inactive-border); color: var(--calendar-inactive-text);">•</div>
                     </div>
                     <!-- F -->
                     <div class="flex flex-col items-center">
-                        <span class="text-[9px] text-slate-500 mb-0.5">F</span>
-                        <div class="w-6 h-6 rounded-full bg-[#181e2b] border border-[#2b354a] flex items-center justify-center text-slate-600 text-[9px]">•</div>
+                        <span class="text-[9px] mb-0.5" style="color: var(--text-muted)">F</span>
+                        <div class="w-6 h-6 rounded-full border flex items-center justify-center text-[9px]"
+                             style="background-color: var(--calendar-inactive-bg); border-color: var(--calendar-inactive-border); color: var(--calendar-inactive-text);">•</div>
                     </div>
                     <!-- S -->
                     <div class="flex flex-col items-center">
-                        <span class="text-[9px] text-slate-500 mb-0.5">S</span>
-                        <div class="w-6 h-6 rounded-full bg-[#181e2b] border border-[#2b354a] flex items-center justify-center text-slate-600 text-[9px]">•</div>
+                        <span class="text-[9px] mb-0.5" style="color: var(--text-muted)">S</span>
+                        <div class="w-6 h-6 rounded-full border flex items-center justify-center text-[9px]"
+                             style="background-color: var(--calendar-inactive-bg); border-color: var(--calendar-inactive-border); color: var(--calendar-inactive-text);">•</div>
                     </div>
                     <!-- S -->
                     <div class="flex flex-col items-center">
-                        <span class="text-[9px] text-slate-500 mb-0.5">S</span>
-                        <div class="w-6 h-6 rounded-full bg-[#181e2b] border border-[#2b354a] flex items-center justify-center text-slate-600 text-[9px]">•</div>
+                        <span class="text-[9px] mb-0.5" style="color: var(--text-muted)">S</span>
+                        <div class="w-6 h-6 rounded-full border flex items-center justify-center text-[9px]"
+                             style="background-color: var(--calendar-inactive-bg); border-color: var(--calendar-inactive-border); color: var(--calendar-inactive-text);">•</div>
                     </div>
                 </div>
             </div>
 
             <!-- XP Progress Bar -->
             <div>
-                <div class="flex justify-between items-center text-[10px] font-mono text-slate-300 mb-1">
-                    <span class="flex items-center gap-1 text-amber-300 font-bold">
+                <div class="flex justify-between items-center text-[10px] font-mono mb-1">
+                    <span class="flex items-center gap-1 text-amber-500 font-bold">
                         <span>⚡️</span> <span id="current-xp-val">45</span> XP
                     </span>
-                    <span class="text-slate-400">Target: <span id="goal-xp-val">60</span> XP</span>
+                    <span style="color: var(--text-muted)">Target: <span id="goal-xp-val">60</span> XP</span>
                 </div>
-                <div class="relative w-full h-2.5 bg-[#1b202e] rounded-full overflow-hidden shimmer-bar border border-[#242c3d]">
+                <div class="relative w-full h-2.5 rounded-full overflow-hidden shimmer-bar border"
+                     style="background-color: var(--shimmer-track); border-color: var(--border-subtle);">
                     <div id="xp-progress-bar"
                          class="h-full bg-gradient-to-r from-amber-400 via-orange-500 to-duo-green rounded-full transition-all duration-700 ease-out"
                          style="width: 75%"></div>
                 </div>
-                <div class="flex justify-between items-center text-[9px] font-mono text-slate-500 mt-1.5">
-                    <span id="user-rank-title" class="font-bold text-slate-400">Lvl 3: Focus Archer</span>
-                    <span id="daily-status-text" class="text-amber-400/90 font-medium">15 XP to Goal</span>
+                <div class="flex justify-between items-center text-[9px] font-mono mt-1.5">
+                    <span id="user-rank-title" class="font-bold" style="color: var(--text-secondary)">Lvl 3: Focus Archer</span>
+                    <span id="daily-status-text" class="text-amber-500 font-medium">15 XP to Goal</span>
                 </div>
             </div>
 
             <!-- Mystery Daily Reward Chest Button -->
             <button type="button" onclick="openMysteryChest()"
-                    class="mt-3 w-full py-1.5 px-2.5 rounded-xl duo-btn-card border border-[#273045] flex items-center justify-between text-xs transition group">
-                <span class="flex items-center gap-1.5 text-[11px] font-mono text-amber-300 font-bold">
+                    class="mt-3 w-full py-1.5 px-2.5 rounded-xl duo-btn-card flex items-center justify-between text-xs transition group">
+                <span class="flex items-center gap-1.5 text-[11px] font-mono text-amber-500 font-bold">
                     <span class="text-sm animate-chest">🎁</span>
                     <span>Daily Mystery Chest</span>
                 </span>
-                <span class="text-[10px] font-mono text-slate-400 group-hover:text-amber-300 font-semibold transition">Claim →</span>
+                <span class="text-[10px] font-mono font-semibold transition" style="color: var(--text-muted)">Claim →</span>
             </button>
         </div>
 
         <!-- Duolingo Daily Quests Widget -->
-        <div class="mb-4 p-3 rounded-2xl bg-[#0e121b] border border-[#1d2433]">
+        <div class="mb-4 p-3 rounded-2xl border"
+             style="background-color: var(--metric-bg); border-color: var(--border-subtle);">
             <div class="flex items-center justify-between mb-2">
-                <span class="font-mono text-[10px] uppercase tracking-wider text-slate-400 font-bold flex items-center gap-1">
+                <span class="font-mono text-[10px] uppercase tracking-wider font-bold flex items-center gap-1" style="color: var(--text-secondary)">
                     <span>🎯</span> Daily Quests
                 </span>
-                <span class="font-mono text-[9px] text-emerald-400 font-bold" id="quests-completed-count">1/3 Done</span>
+                <span class="font-mono text-[9px] text-duo-green font-bold" id="quests-completed-count">1/3 Done</span>
             </div>
 
             <!-- Quest List -->
             <div class="space-y-1.5 text-xs font-mono">
                 <!-- Quest 1 -->
-                <div class="p-1.5 rounded-lg bg-[#141926] border border-[#1f283d] flex items-center justify-between">
+                <div class="p-1.5 rounded-xl border flex items-center justify-between"
+                     style="background-color: var(--bg-card); border-color: var(--border-card);">
                     <div class="min-w-0 pr-1">
-                        <p class="text-[10px] font-semibold text-slate-200 truncate">Finish 1 high-pri task</p>
-                        <p class="text-[9px] text-amber-400">+25 XP</p>
+                        <p class="text-[10px] font-semibold truncate" style="color: var(--text-primary)">Finish 1 high-pri task</p>
+                        <p class="text-[9px] text-amber-500 font-bold">+25 XP</p>
                     </div>
                     <button type="button" onclick="claimQuest(1, 25, this)" id="quest-btn-1"
-                            class="px-2 py-0.5 text-[9px] font-bold rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500 hover:text-slate-950 transition active:scale-95">
+                            class="px-2.5 py-1 text-[9px] font-bold rounded-lg duo-btn-green text-slate-950 shadow-xs">
                         Claim
                     </button>
                 </div>
 
                 <!-- Quest 2 -->
-                <div class="p-1.5 rounded-lg bg-[#141926] border border-[#1f283d] flex items-center justify-between">
+                <div class="p-1.5 rounded-xl border flex items-center justify-between"
+                     style="background-color: var(--bg-card); border-color: var(--border-card);">
                     <div class="min-w-0 pr-1">
-                        <p class="text-[10px] font-semibold text-slate-200 truncate">Hit a 2x Combo streak</p>
-                        <p class="text-[9px] text-amber-400">+20 XP</p>
+                        <p class="text-[10px] font-semibold truncate" style="color: var(--text-primary)">Hit a 2x Combo streak</p>
+                        <p class="text-[9px] text-amber-500 font-bold">+20 XP</p>
                     </div>
-                    <span class="text-[9px] text-slate-500 font-mono px-1.5 py-0.5">In Progress</span>
+                    <span class="text-[9px] font-mono px-1.5 py-0.5" style="color: var(--text-muted)">Active</span>
                 </div>
             </div>
         </div>
 
         <!-- Primary Views -->
         <div class="mb-5">
-            <p class="font-mono text-[10px] uppercase tracking-widest text-slate-500 mb-1 px-2.5 font-bold">Views</p>
+            <p class="font-mono text-[10px] uppercase tracking-widest mb-1.5 px-2.5 font-bold" style="color: var(--text-muted)">Views</p>
             <nav class="space-y-1 text-xs font-medium">
                 
                 <!-- All Tasks -->
                 <a href="{{ route('todos.index', ['filter' => 'all', 'sort' => $sort]) }}"
-                   class="flex items-center justify-between px-2.5 py-1.5 rounded-xl transition-all {{ $filter === 'all' && $priority === 'all' && $category === 'all' ? 'bg-[#181e2b] text-white font-bold border border-[#273045] shadow-xs' : 'text-slate-400 hover:text-slate-200 hover:bg-[#121620]' }}">
+                   class="flex items-center justify-between px-2.5 py-1.5 rounded-xl transition-all {{ $filter === 'all' && $priority === 'all' && $category === 'all' ? 'font-bold shadow-xs' : 'hover:scale-[1.01]' }}"
+                   style="{{ $filter === 'all' && $priority === 'all' && $category === 'all' ? 'background-color: var(--pill-active-bg); border: 1px solid var(--pill-active-border); color: var(--pill-active-text); box-shadow: var(--pill-active-shadow);' : 'color: var(--text-secondary);' }}">
                     <div class="flex items-center gap-2">
-                        <svg class="w-3.5 h-3.5 {{ $filter === 'all' && $priority === 'all' && $category === 'all' ? 'text-indigo-400' : 'text-slate-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-3.5 h-3.5 {{ $filter === 'all' && $priority === 'all' && $category === 'all' ? 'text-indigo-500' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
                         </svg>
                         <span>All Tasks</span>
                     </div>
-                    <span class="font-mono text-[10px] px-1.5 py-0.2 rounded {{ $filter === 'all' && $priority === 'all' && $category === 'all' ? 'bg-[#222b3d] text-indigo-300 font-bold' : 'text-slate-500' }}">
+                    <span class="font-mono text-[10px] px-1.5 py-0.2 rounded-md font-bold"
+                          style="background-color: var(--metric-bg); color: var(--text-secondary);">
                         {{ $totalCount }}
                     </span>
                 </a>
 
                 <!-- Due Today -->
                 <a href="{{ route('todos.index', ['filter' => 'today', 'sort' => $sort]) }}"
-                   class="flex items-center justify-between px-2.5 py-1.5 rounded-xl transition-all {{ $filter === 'today' ? 'bg-[#181e2b] text-white font-bold border border-[#273045] shadow-xs' : 'text-slate-400 hover:text-slate-200 hover:bg-[#121620]' }}">
+                   class="flex items-center justify-between px-2.5 py-1.5 rounded-xl transition-all {{ $filter === 'today' ? 'font-bold shadow-xs' : 'hover:scale-[1.01]' }}"
+                   style="{{ $filter === 'today' ? 'background-color: var(--pill-active-bg); border: 1px solid var(--pill-active-border); color: var(--pill-active-text); box-shadow: var(--pill-active-shadow);' : 'color: var(--text-secondary);' }}">
                     <div class="flex items-center gap-2">
-                        <svg class="w-3.5 h-3.5 {{ $filter === 'today' ? 'text-amber-400' : 'text-amber-500/70' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
                         </svg>
                         <span>Due Today</span>
                     </div>
-                    <span class="font-mono text-[10px] px-1.5 py-0.2 rounded {{ $filter === 'today' ? 'bg-amber-500/20 text-amber-300 font-bold' : 'text-slate-500' }}">
+                    <span class="font-mono text-[10px] px-1.5 py-0.2 rounded-md font-bold bg-amber-500/20 text-amber-600 dark:text-amber-300">
                         {{ $todayCount }}
                     </span>
                 </a>
 
                 <!-- Active -->
                 <a href="{{ route('todos.index', ['filter' => 'active', 'sort' => $sort]) }}"
-                   class="flex items-center justify-between px-2.5 py-1.5 rounded-xl transition-all {{ $filter === 'active' ? 'bg-[#181e2b] text-white font-bold border border-[#273045] shadow-xs' : 'text-slate-400 hover:text-slate-200 hover:bg-[#121620]' }}">
+                   class="flex items-center justify-between px-2.5 py-1.5 rounded-xl transition-all {{ $filter === 'active' ? 'font-bold shadow-xs' : 'hover:scale-[1.01]' }}"
+                   style="{{ $filter === 'active' ? 'background-color: var(--pill-active-bg); border: 1px solid var(--pill-active-border); color: var(--pill-active-text); box-shadow: var(--pill-active-shadow);' : 'color: var(--text-secondary);' }}">
                     <div class="flex items-center gap-2">
-                        <svg class="w-3.5 h-3.5 {{ $filter === 'active' ? 'text-sky-400' : 'text-sky-500/70' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-3.5 h-3.5 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <span>In Progress</span>
                     </div>
-                    <span class="font-mono text-[10px] px-1.5 py-0.2 rounded {{ $filter === 'active' ? 'bg-sky-500/20 text-sky-300 font-bold' : 'text-slate-500' }}">
+                    <span class="font-mono text-[10px] px-1.5 py-0.2 rounded-md font-bold bg-sky-500/20 text-sky-600 dark:text-sky-300">
                         {{ $remainingCount }}
                     </span>
                 </a>
 
                 <!-- Important -->
                 <a href="{{ route('todos.index', ['filter' => 'important', 'sort' => $sort]) }}"
-                   class="flex items-center justify-between px-2.5 py-1.5 rounded-xl transition-all {{ $filter === 'important' ? 'bg-[#181e2b] text-white font-bold border border-[#273045] shadow-xs' : 'text-slate-400 hover:text-slate-200 hover:bg-[#121620]' }}">
+                   class="flex items-center justify-between px-2.5 py-1.5 rounded-xl transition-all {{ $filter === 'important' ? 'font-bold shadow-xs' : 'hover:scale-[1.01]' }}"
+                   style="{{ $filter === 'important' ? 'background-color: var(--pill-active-bg); border: 1px solid var(--pill-active-border); color: var(--pill-active-text); box-shadow: var(--pill-active-shadow);' : 'color: var(--text-secondary);' }}">
                     <div class="flex items-center gap-2">
-                        <svg class="w-3.5 h-3.5 {{ $filter === 'important' ? 'text-rose-400' : 'text-rose-500/70' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                         </svg>
                         <span>High Priority</span>
                     </div>
-                    <span class="font-mono text-[10px] px-1.5 py-0.2 rounded {{ $filter === 'important' ? 'bg-rose-500/20 text-rose-300 font-bold' : 'text-slate-500' }}">
+                    <span class="font-mono text-[10px] px-1.5 py-0.2 rounded-md font-bold bg-rose-500/20 text-rose-600 dark:text-rose-300">
                         {{ $importantCount }}
                     </span>
                 </a>
 
                 <!-- Completed -->
                 <a href="{{ route('todos.index', ['filter' => 'done', 'sort' => $sort]) }}"
-                   class="flex items-center justify-between px-2.5 py-1.5 rounded-xl transition-all {{ $filter === 'done' ? 'bg-[#181e2b] text-white font-bold border border-[#273045] shadow-xs' : 'text-slate-400 hover:text-slate-200 hover:bg-[#121620]' }}">
+                   class="flex items-center justify-between px-2.5 py-1.5 rounded-xl transition-all {{ $filter === 'done' ? 'font-bold shadow-xs' : 'hover:scale-[1.01]' }}"
+                   style="{{ $filter === 'done' ? 'background-color: var(--pill-active-bg); border: 1px solid var(--pill-active-border); color: var(--pill-active-text); box-shadow: var(--pill-active-shadow);' : 'color: var(--text-secondary);' }}">
                     <div class="flex items-center gap-2">
-                        <svg class="w-3.5 h-3.5 {{ $filter === 'done' ? 'text-duo-green' : 'text-emerald-500/70' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-3.5 h-3.5 text-duo-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <span>Completed</span>
                     </div>
-                    <span class="font-mono text-[10px] px-1.5 py-0.2 rounded {{ $filter === 'done' ? 'bg-emerald-500/20 text-emerald-300 font-bold' : 'text-slate-500' }}">
+                    <span class="font-mono text-[10px] px-1.5 py-0.2 rounded-md font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-300">
                         {{ $completedCount }}
                     </span>
                 </a>
@@ -582,14 +716,15 @@
 
         <!-- Tags / Categories -->
         @if($categories->isNotEmpty())
-            <div class="mb-5 pt-3 border-t border-[#181d29]">
-                <p class="font-mono text-[10px] uppercase tracking-widest text-slate-500 mb-1.5 px-2.5 font-bold">Tags</p>
+            <div class="mb-5 pt-3 border-t" style="border-color: var(--border-subtle)">
+                <p class="font-mono text-[10px] uppercase tracking-widest mb-1.5 px-2.5 font-bold" style="color: var(--text-muted)">Tags</p>
                 <div class="space-y-0.5 text-xs font-medium">
                     @foreach($categories as $cat)
                         <a href="{{ route('todos.index', ['category' => $cat->category, 'sort' => $sort]) }}"
-                           class="flex items-center justify-between px-2.5 py-1.5 rounded-lg transition-all {{ $category === $cat->category ? 'bg-[#181e2b] text-white font-bold border border-[#273045]' : 'text-slate-400 hover:text-slate-200 hover:bg-[#121620]' }}">
-                            <span class="font-mono text-[11px] text-slate-300">#{{ $cat->category }}</span>
-                            <span class="font-mono text-[10px] text-slate-500">{{ $cat->count }}</span>
+                           class="flex items-center justify-between px-2.5 py-1.5 rounded-xl transition-all {{ $category === $cat->category ? 'font-bold shadow-xs' : 'hover:scale-[1.01]' }}"
+                           style="{{ $category === $cat->category ? 'background-color: var(--pill-active-bg); border: 1px solid var(--pill-active-border); color: var(--pill-active-text); box-shadow: var(--pill-active-shadow);' : 'color: var(--text-secondary);' }}">
+                            <span class="font-mono text-[11px]">#{{ $cat->category }}</span>
+                            <span class="font-mono text-[10px]" style="color: var(--text-muted)">{{ $cat->count }}</span>
                         </a>
                     @endforeach
                 </div>
@@ -597,17 +732,20 @@
         @endif
 
         <!-- Interactive Animated Mascot Companion Widget (Duo-Fay the Owl) -->
-        <div class="mt-auto pt-3 border-t border-[#181d29] px-1 relative">
+        <div class="mt-auto pt-3 border-t px-1 relative" style="border-color: var(--border-subtle)">
             
             <!-- Speech Bubble that dynamically pops up -->
-            <div id="mascot-speech-bubble" class="hidden mb-2 bg-[#171d2b] border border-duo-green/40 text-slate-100 text-[11px] font-medium p-2.5 rounded-xl shadow-xl relative animate-bubble-pop">
+            <div id="mascot-speech-bubble" class="hidden mb-2 text-[11px] font-medium p-2.5 rounded-2xl shadow-xl relative animate-bubble-pop border"
+                 style="background-color: var(--bg-card); border-color: #58cc02; color: var(--text-primary)">
                 <span id="mascot-quote-text">Let's keep the streak blazing! 🔥</span>
-                <div class="absolute -bottom-1.5 left-6 w-3 h-3 bg-[#171d2b] border-r border-b border-duo-green/40 transform rotate-45"></div>
+                <div class="absolute -bottom-1.5 left-6 w-3 h-3 border-r border-b transform rotate-45"
+                     style="background-color: var(--bg-card); border-color: #58cc02;"></div>
             </div>
 
             <!-- Clickable Vector Owl Character -->
             <div onclick="petMascot(event)" id="mascot-card"
-                 class="cursor-pointer group flex items-center gap-3 p-2.5 rounded-2xl bg-[#121622] hover:bg-[#181f2e] border border-[#20273a] hover:border-duo-green/40 transition-all select-none shadow-xs active:scale-95 relative">
+                 class="cursor-pointer group flex items-center gap-3 p-2.5 rounded-2xl border transition-all select-none shadow-xs active:scale-95 relative"
+                 style="background-color: var(--metric-bg); border-color: var(--border-subtle);">
                 
                 <!-- SVG Owl Mascot with animated eyes and wings -->
                 <div id="mascot-avatar" class="w-11 h-11 shrink-0 relative animate-mascot">
@@ -646,11 +784,11 @@
                 </div>
 
                 <div class="min-w-0">
-                    <p class="text-xs font-bold text-slate-200 group-hover:text-duo-green transition flex items-center gap-1">
+                    <p class="text-xs font-bold group-hover:text-duo-green transition flex items-center gap-1" style="color: var(--text-primary)">
                         <span>Duo-Fay</span>
-                        <span class="text-[10px] text-amber-400">⚡️</span>
+                        <span class="text-[10px] text-amber-500">⚡️</span>
                     </p>
-                    <p class="font-mono text-[9px] text-slate-400 mt-0.5 truncate">Tap me for motivation!</p>
+                    <p class="font-mono text-[9px] mt-0.5 truncate" style="color: var(--text-muted)">Tap me for motivation!</p>
                 </div>
             </div>
         </div>
@@ -662,18 +800,18 @@
 
         <div>
             <!-- Top View Header -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 mb-6 border-b border-[#181d29]">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 mb-6 border-b" style="border-color: var(--border-subtle)">
                 <div>
-                    <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-white flex items-center gap-2.5">
+                    <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight flex items-center gap-2.5" style="color: var(--text-primary)">
                         @if($filter === 'today')
                             <span>Due Today</span>
-                            <span class="text-amber-400 text-lg">☀️</span>
+                            <span class="text-amber-500 text-lg">☀️</span>
                         @elseif($filter === 'important')
                             <span>Important Tasks</span>
-                            <span class="text-rose-400 text-lg">⚡️</span>
+                            <span class="text-rose-500 text-lg">⚡️</span>
                         @elseif($filter === 'active')
                             <span>In Progress</span>
-                            <span class="text-sky-400 text-lg">🎯</span>
+                            <span class="text-sky-500 text-lg">🎯</span>
                         @elseif($filter === 'done')
                             <span>Completed Tasks</span>
                             <span class="text-duo-green text-lg">✓</span>
@@ -685,8 +823,8 @@
                             <span>All Tasks</span>
                         @endif
                     </h1>
-                    <p class="font-mono text-[11px] text-slate-500 mt-0.5">
-                        {{ now()->translatedFormat('l, M j, Y') }} • Keep crushing goals!
+                    <p class="font-mono text-[11px] mt-0.5" style="color: var(--text-muted)">
+                        {{ now()->translatedFormat('l, M j, Y') }} • Master your daily focus
                     </p>
                 </div>
 
@@ -699,14 +837,15 @@
                         <input type="hidden" name="sort" value="{{ $sort }}">
 
                         <div class="relative flex items-center">
-                            <svg class="w-3.5 h-3.5 text-slate-500 absolute left-3 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-3.5 h-3.5 absolute left-3 pointer-events-none" style="color: var(--text-muted)" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
                             </svg>
                             <input type="text" name="search" value="{{ $search }}" placeholder="Filter issues… (/)" id="search-input"
-                                   class="pl-8 pr-7 py-1.5 font-mono text-xs bg-[#10131a] border border-[#1e2433] rounded-xl text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500/80 focus:ring-1 focus:ring-indigo-500/30 transition-all w-36 sm:w-48 focus:w-56">
+                                   class="pl-8 pr-7 py-1.5 font-mono text-xs rounded-xl border focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all w-36 sm:w-48 focus:w-56"
+                                   style="background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-primary)">
                             @if($search)
                                 <a href="{{ route('todos.index', ['filter' => $filter, 'priority' => $priority, 'category' => $category, 'sort' => $sort]) }}"
-                                   class="absolute right-2.5 text-slate-500 hover:text-slate-300 text-xs">✕</a>
+                                   class="absolute right-2.5 text-xs hover:opacity-80" style="color: var(--text-muted)">✕</a>
                             @endif
                         </div>
                     </form>
@@ -717,7 +856,8 @@
                         <input type="hidden" name="category" value="{{ $category }}">
                         <input type="hidden" name="search" value="{{ $search }}">
                         <select name="sort" onchange="this.form.submit()"
-                                class="font-mono text-xs bg-[#10131a] border border-[#1e2433] rounded-xl px-2.5 py-1.5 text-slate-400 hover:text-slate-200 outline-none cursor-pointer focus:border-indigo-500/80">
+                                class="font-mono text-xs rounded-xl px-2.5 py-1.5 border outline-none cursor-pointer focus:ring-2 focus:ring-indigo-500/30 transition"
+                                style="background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-secondary)">
                             <option value="latest" {{ $sort === 'latest' ? 'selected' : '' }}>Recent</option>
                             <option value="due_date" {{ $sort === 'due_date' ? 'selected' : '' }}>Due Date</option>
                             <option value="priority" {{ $sort === 'priority' ? 'selected' : '' }}>Priority</option>
@@ -729,37 +869,41 @@
 
             <!-- Flash Notification -->
             @if(session('success'))
-                <div id="flash-banner" class="mb-5 flex items-center justify-between bg-[#121824] border border-duo-green/40 text-emerald-300 rounded-xl px-3.5 py-2.5 text-xs font-mono shadow-xs transition-all duration-300">
+                <div id="flash-banner" class="mb-5 flex items-center justify-between border rounded-2xl px-4 py-2.5 text-xs font-mono shadow-xs transition-all duration-300"
+                     style="background-color: var(--bg-card); border-color: #58cc02; color: #58cc02;">
                     <div class="flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-duo-green animate-ping"></span>
-                        <span class="font-semibold">{{ session('success') }}</span>
+                        <span class="font-bold">{{ session('success') }}</span>
                     </div>
-                    <button type="button" onclick="document.getElementById('flash-banner').remove()" class="text-emerald-400/60 hover:text-emerald-300 font-bold ml-3">✕</button>
+                    <button type="button" onclick="document.getElementById('flash-banner').remove()" class="text-xs font-bold ml-3 hover:opacity-75">✕</button>
                 </div>
             @endif
 
             <!-- High-Precision Metric Strip with Shimmer & XP Rate -->
-            <div class="bg-[#0e1118] border border-[#1a1f2c] rounded-2xl px-4 py-3 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                <div class="flex items-center gap-4 text-slate-400 font-mono text-[11px]">
-                    <span class="text-slate-200 font-bold">{{ $totalCount }} total</span>
-                    <span class="text-slate-600">•</span>
-                    <span class="text-amber-400 font-bold">{{ $remainingCount }} active</span>
-                    <span class="text-slate-600">•</span>
-                    <span class="text-emerald-400 font-bold">{{ $completedCount }} completed</span>
+            <div class="rounded-2xl px-4 py-3 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs border"
+                 style="background-color: var(--metric-bg); border-color: var(--border-subtle);">
+                <div class="flex items-center gap-4 font-mono text-[11px]" style="color: var(--text-secondary)">
+                    <span class="font-bold" style="color: var(--text-primary)">{{ $totalCount }} total</span>
+                    <span style="color: var(--text-muted)">•</span>
+                    <span class="text-amber-500 font-bold">{{ $remainingCount }} active</span>
+                    <span style="color: var(--text-muted)">•</span>
+                    <span class="text-duo-green font-bold">{{ $completedCount }} completed</span>
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <span class="font-mono text-[10px] text-slate-400">Progress:</span>
-                    <div class="relative w-36 bg-[#161a24] h-2.5 rounded-full overflow-hidden shimmer-bar border border-[#202738]">
+                    <span class="font-mono text-[10px]" style="color: var(--text-muted)">Progress:</span>
+                    <div class="relative w-36 h-2.5 rounded-full overflow-hidden shimmer-bar border"
+                         style="background-color: var(--shimmer-track); border-color: var(--border-subtle);">
                         <div class="bg-gradient-to-r from-indigo-500 via-duo-blue to-duo-green h-full rounded-full transition-all duration-700 ease-out"
                              style="width: {{ $completionPercentage }}%"></div>
                     </div>
-                    <span class="font-mono text-[10px] text-slate-200 font-extrabold">{{ $completionPercentage }}%</span>
+                    <span class="font-mono text-[10px] font-extrabold" style="color: var(--text-primary)">{{ $completionPercentage }}%</span>
                 </div>
             </div>
 
             <!-- Duolingo-Tactile Command Bar (3D Push Button) -->
-            <div class="bg-[#0e1118] border border-[#1e2433] hover:border-[#2d364d] focus-within:border-indigo-500/70 focus-within:ring-1 focus-within:ring-indigo-500/30 rounded-2xl p-3 mb-6 transition-all shadow-xs">
+            <div class="rounded-2xl p-3.5 mb-6 transition-all border shadow-sm"
+                 style="background-color: var(--bg-card); border-color: var(--border-card);">
                 <form action="{{ route('todos.store') }}" method="POST" id="add-task-form" onsubmit="playTaskAddSound()">
                     @csrf
                     <input type="hidden" name="filter" value="{{ $filter }}">
@@ -769,29 +913,31 @@
                     <input type="hidden" name="sort" value="{{ $sort }}">
 
                     <div class="flex items-center gap-2">
-                        <span class="text-duo-green text-base font-mono font-bold select-none pl-1">+</span>
+                        <span class="text-duo-green text-base font-mono font-extrabold select-none pl-1">+</span>
                         <input type="text" name="title" id="task-title-input" placeholder="Create new task… (press Return to save)"
                                value="{{ old('title') }}" required autofocus
-                               class="flex-1 text-sm bg-transparent placeholder:text-slate-600 text-white outline-none">
+                               class="flex-1 text-sm bg-transparent outline-none"
+                               style="color: var(--text-primary)">
                         
                         <!-- Tactile 3D Push Button -->
-                        <button type="submit" class="duo-btn-green text-slate-950 font-extrabold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm">
+                        <button type="submit" class="duo-btn-green text-slate-950 font-black text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-sm">
                             <span>Add</span>
                             <kbd class="font-mono text-[10px] opacity-75">↵</kbd>
                         </button>
                     </div>
 
                     @error('title')
-                        <p class="text-xs text-rose-400 font-mono mt-1 pl-4">{{ $message }}</p>
+                        <p class="text-xs text-rose-500 font-mono mt-1 pl-4">{{ $message }}</p>
                     @enderror
 
                     <!-- Quick Metadata Controls -->
-                    <div class="flex flex-wrap items-center gap-2.5 mt-2.5 pt-2.5 border-t border-[#171b26] text-xs pl-4 font-mono">
+                    <div class="flex flex-wrap items-center gap-2.5 mt-2.5 pt-2.5 border-t text-xs pl-4 font-mono" style="border-color: var(--border-subtle)">
                         
                         <!-- Priority -->
-                        <div class="flex items-center gap-1 text-[11px] text-slate-400">
-                            <span class="text-slate-600">pri:</span>
-                            <select name="priority" id="task-priority-select" class="bg-[#121620] border border-[#1e2433] rounded-lg px-2 py-0.5 text-slate-300 outline-none focus:border-indigo-500 cursor-pointer">
+                        <div class="flex items-center gap-1 text-[11px]" style="color: var(--text-secondary)">
+                            <span style="color: var(--text-muted)">pri:</span>
+                            <select name="priority" id="task-priority-select" class="rounded-lg px-2 py-0.5 border outline-none cursor-pointer"
+                                    style="background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-secondary)">
                                 <option value="low">Low (I)</option>
                                 <option value="medium" selected>Medium (II)</option>
                                 <option value="high">High (III)</option>
@@ -799,21 +945,23 @@
                         </div>
 
                         <!-- Due Date -->
-                        <div class="flex items-center gap-1 text-[11px] text-slate-400">
-                            <span class="text-slate-600">due:</span>
+                        <div class="flex items-center gap-1 text-[11px]" style="color: var(--text-secondary)">
+                            <span style="color: var(--text-muted)">due:</span>
                             <input type="date" name="due_date" value="{{ old('due_date') }}"
-                                   class="bg-[#121620] border border-[#1e2433] rounded-lg px-1.5 py-0.5 text-slate-300 outline-none focus:border-indigo-500 cursor-pointer">
+                                   class="rounded-lg px-1.5 py-0.5 border outline-none cursor-pointer"
+                                   style="background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-secondary)">
                         </div>
 
                         <!-- Tag -->
-                        <div class="flex items-center gap-1 text-[11px] text-slate-400">
-                            <span class="text-slate-600">tag:</span>
+                        <div class="flex items-center gap-1 text-[11px]" style="color: var(--text-secondary)">
+                            <span style="color: var(--text-muted)">tag:</span>
                             <input type="text" name="category" placeholder="e.g. Core" value="{{ old('category') }}"
-                                   class="bg-[#121620] border border-[#1e2433] rounded-lg px-2 py-0.5 text-slate-300 outline-none focus:border-indigo-500 w-24">
+                                   class="rounded-lg px-2 py-0.5 border outline-none w-24"
+                                   style="background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-secondary)">
                         </div>
 
                         <!-- Notes toggle -->
-                        <button type="button" onclick="document.getElementById('notes-field').classList.toggle('hidden')" class="text-[11px] text-slate-500 hover:text-slate-300 ml-auto transition">
+                        <button type="button" onclick="document.getElementById('notes-field').classList.toggle('hidden')" class="text-[11px] ml-auto transition hover:underline" style="color: var(--text-muted)">
                             + description
                         </button>
                     </div>
@@ -821,20 +969,23 @@
                     <!-- Expandable Context Notes -->
                     <div id="notes-field" class="hidden mt-2.5 pl-4">
                         <textarea name="description" rows="2" placeholder="Task notes, links, or context…"
-                                  class="w-full text-xs font-mono bg-[#121620] border border-[#1e2433] rounded-xl p-2.5 text-slate-300 outline-none focus:border-indigo-500"></textarea>
+                                  class="w-full text-xs font-mono rounded-xl p-2.5 border outline-none focus:ring-2 focus:ring-indigo-500/30"
+                                  style="background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-primary)"></textarea>
                     </div>
                 </form>
             </div>
 
             <!-- Task List Table / Rows -->
-            <div class="space-y-2 mb-6" id="tasks-container">
+            <div class="space-y-2.5 mb-6" id="tasks-container">
                 @if($todos->isEmpty())
-                    <div class="text-center py-16 px-4 bg-[#0e1118] border border-[#181d29] rounded-2xl">
-                        <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-[#141822] border border-[#1e2433] flex items-center justify-center text-duo-green font-mono text-2xl animate-bounce">
+                    <div class="text-center py-16 px-4 rounded-2xl border"
+                         style="background-color: var(--bg-card); border-color: var(--border-card);">
+                        <div class="w-14 h-14 mx-auto mb-3 rounded-2xl border flex items-center justify-center text-duo-green font-mono text-2xl animate-bounce"
+                             style="background-color: var(--metric-bg); border-color: var(--border-subtle);">
                             ✓
                         </div>
-                        <h3 class="text-sm font-bold text-white mb-1">All Clear & Tidy!</h3>
-                        <p class="text-xs font-mono text-slate-400">
+                        <h3 class="text-sm font-bold mb-1" style="color: var(--text-primary)">All Clear & Tidy!</h3>
+                        <p class="text-xs font-mono" style="color: var(--text-muted)">
                             @if($filter === 'done')
                                 No completed tasks yet. Tap a circle to finish one!
                             @elseif($remainingCount === 0 && $totalCount > 0)
@@ -848,7 +999,7 @@
                     </div>
                 @else
                     @foreach($todos as $todo)
-                        <div class="task-card group bg-[#0e1118] border border-[#1a1f2c] hover:border-[#2b354d] rounded-2xl p-3.5" id="todo-row-{{ $todo->id }}">
+                        <div class="task-card task-stagger group rounded-2xl p-3.5" id="todo-row-{{ $todo->id }}" style="animation-delay: {{ $loop->index * 0.05 }}s;">
                             
                             <!-- Row Content -->
                             <div class="flex items-start gap-3.5" id="view-mode-{{ $todo->id }}">
@@ -865,7 +1016,8 @@
                                     <input type="hidden" name="sort" value="{{ $sort }}">
 
                                     <button type="submit" id="check-btn-{{ $todo->id }}"
-                                            class="checkbox-bounce w-5 h-5 rounded-md border flex items-center justify-center cursor-pointer {{ $todo->completed ? 'bg-duo-green border-duo-green text-slate-950 font-bold shadow-xs' : 'border-[#2c3547] hover:border-duo-green bg-[#121620] text-transparent' }}">
+                                            class="checkbox-bounce w-5 h-5 rounded-md border flex items-center justify-center cursor-pointer {{ $todo->completed ? 'bg-duo-green border-duo-green text-slate-950 font-bold shadow-xs' : 'text-transparent hover:border-duo-green' }}"
+                                            style="{{ !$todo->completed ? 'background-color: var(--input-bg); border-color: var(--input-border);' : '' }}">
                                         <svg class="w-3.5 h-3.5 fill-current stroke-current" stroke-width="2.5" viewBox="0 0 20 20">
                                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                                         </svg>
@@ -878,44 +1030,45 @@
                                         
                                         <!-- Priority Pills -->
                                         @if($todo->priority === 'high')
-                                            <span class="font-mono text-[9px] px-1.5 py-0.2 rounded bg-rose-500/10 text-rose-400 border border-rose-500/30 font-bold tracking-tight" title="High Priority (+25 XP)">HIGH</span>
+                                            <span class="font-mono text-[9px] px-1.5 py-0.2 rounded bg-rose-500/10 text-rose-500 border border-rose-500/30 font-bold tracking-tight" title="High Priority (+25 XP)">HIGH</span>
                                         @elseif($todo->priority === 'medium')
-                                            <span class="font-mono text-[9px] px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 font-bold tracking-tight" title="Medium Priority (+15 XP)">MED</span>
+                                            <span class="font-mono text-[9px] px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold tracking-tight" title="Medium Priority (+15 XP)">MED</span>
                                         @else
-                                            <span class="font-mono text-[9px] px-1.5 py-0.2 rounded bg-slate-500/10 text-slate-400 border border-slate-500/20 font-medium tracking-tight" title="Low Priority (+10 XP)">LOW</span>
+                                            <span class="font-mono text-[9px] px-1.5 py-0.2 rounded bg-slate-500/10 border border-slate-500/20 font-medium tracking-tight" style="color: var(--text-muted)" title="Low Priority (+10 XP)">LOW</span>
                                         @endif
 
-                                        <span class="text-sm font-semibold tracking-tight break-words {{ $todo->completed ? 'task-done' : 'text-slate-100' }}">
+                                        <span class="text-sm font-semibold tracking-tight break-words {{ $todo->completed ? 'task-done' : '' }}" style="{{ !$todo->completed ? 'color: var(--text-primary);' : '' }}">
                                             {{ $todo->title }}
                                         </span>
 
                                         <!-- Tag Pill -->
                                         @if($todo->category)
                                             <a href="{{ route('todos.index', ['category' => $todo->category, 'sort' => $sort]) }}"
-                                               class="font-mono text-[10px] text-slate-400 hover:text-slate-200 bg-[#141822] border border-[#1e2433] px-1.5 py-0.2 rounded-md transition hover:scale-105">
+                                               class="font-mono text-[10px] px-1.5 py-0.2 rounded-md transition hover:scale-105 border"
+                                               style="background-color: var(--tag-bg); border-color: var(--tag-border); color: var(--tag-text);">
                                                 #{{ $todo->category }}
                                             </a>
                                         @endif
 
                                         <!-- Due Date Badge -->
                                         @if($todo->due_date)
-                                            <span class="font-mono text-[10px] {{ $todo->isOverdue() ? 'text-rose-400 font-bold' : ($todo->isDueToday() ? 'text-amber-300 font-bold' : 'text-slate-500') }}">
+                                            <span class="font-mono text-[10px] {{ $todo->isOverdue() ? 'text-rose-500 font-bold' : ($todo->isDueToday() ? 'text-amber-500 font-bold' : '') }}" style="{{ !$todo->isOverdue() && !$todo->isDueToday() ? 'color: var(--text-muted);' : '' }}">
                                                 {{ $todo->isDueToday() ? 'Today' : ($todo->isOverdue() ? 'Overdue' : $todo->due_date->format('M j')) }}
                                             </span>
                                         @endif
                                     </div>
 
                                     @if($todo->description)
-                                        <p class="text-xs text-slate-500 mt-1 line-clamp-1 font-mono {{ $todo->completed ? 'task-done' : '' }}">
+                                        <p class="text-xs mt-1 line-clamp-1 font-mono {{ $todo->completed ? 'task-done' : '' }}" style="color: var(--text-secondary)">
                                             {{ $todo->description }}
                                         </p>
                                     @endif
                                 </div>
 
                                 <!-- Actions Toolbar on Hover -->
-                                <div class="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-slate-500">
+                                <div class="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1" style="color: var(--text-muted)">
                                     <button type="button" onclick="showEditMode({{ $todo->id }})" title="Edit"
-                                            class="p-1.5 hover:text-slate-200 hover:bg-[#1a202c] rounded-lg transition-transform active:scale-90">
+                                            class="p-1.5 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200 dark:hover:bg-[#1a202c] rounded-lg transition-transform active:scale-90">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
                                         </svg>
@@ -930,7 +1083,7 @@
                                         <input type="hidden" name="search" value="{{ $search }}">
                                         <input type="hidden" name="sort" value="{{ $sort }}">
 
-                                        <button type="submit" title="Delete" class="p-1.5 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-transform active:scale-90">
+                                        <button type="submit" title="Delete" class="p-1.5 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-transform active:scale-90">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
@@ -942,7 +1095,8 @@
 
                             <!-- Inline Edit Mode Panel -->
                             <div id="edit-mode-{{ $todo->id }}" class="hidden pt-2">
-                                <form action="{{ route('todos.update', $todo) }}" method="POST" class="space-y-2.5 bg-[#121620] border border-[#202738] p-3 rounded-xl">
+                                <form action="{{ route('todos.update', $todo) }}" method="POST" class="space-y-2.5 p-3 rounded-xl border"
+                                      style="background-color: var(--metric-bg); border-color: var(--border-subtle);">
                                     @csrf
                                     @method('PUT')
                                     <input type="hidden" name="filter" value="{{ $filter }}">
@@ -952,26 +1106,31 @@
                                     <input type="hidden" name="sort" value="{{ $sort }}">
 
                                     <input type="text" name="title" value="{{ $todo->title }}" required
-                                           class="w-full text-xs font-semibold rounded-lg bg-[#0b0d13] border border-[#202738] p-2 text-white outline-none focus:border-indigo-500">
+                                           class="w-full text-xs font-semibold rounded-lg p-2 border outline-none focus:ring-2 focus:ring-indigo-500/30"
+                                           style="background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-primary)">
 
                                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-xs">
-                                        <select name="priority" class="bg-[#0b0d13] border border-[#202738] rounded-lg p-1.5 text-slate-300 outline-none focus:border-indigo-500">
+                                        <select name="priority" class="rounded-lg p-1.5 border outline-none"
+                                                style="background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-secondary)">
                                             <option value="low" {{ $todo->priority === 'low' ? 'selected' : '' }}>Low (I)</option>
                                             <option value="medium" {{ $todo->priority === 'medium' ? 'selected' : '' }}>Medium (II)</option>
                                             <option value="high" {{ $todo->priority === 'high' ? 'selected' : '' }}>High (III)</option>
                                         </select>
 
                                         <input type="date" name="due_date" value="{{ $todo->due_date ? $todo->due_date->format('Y-m-d') : '' }}"
-                                               class="bg-[#0b0d13] border border-[#202738] rounded-lg p-1.5 text-slate-300 outline-none focus:border-indigo-500">
+                                               class="rounded-lg p-1.5 border outline-none"
+                                               style="background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-secondary)">
 
                                         <input type="text" name="category" value="{{ $todo->category }}" placeholder="Tag"
-                                               class="bg-[#0b0d13] border border-[#202738] rounded-lg p-1.5 text-slate-300 outline-none focus:border-indigo-500">
+                                               class="rounded-lg p-1.5 border outline-none"
+                                               style="background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-secondary)">
                                     </div>
 
-                                    <textarea name="description" rows="2" placeholder="Notes…" class="w-full font-mono text-xs bg-[#0b0d13] border border-[#202738] rounded-lg p-2 text-slate-300 outline-none focus:border-indigo-500">{{ $todo->description }}</textarea>
+                                    <textarea name="description" rows="2" placeholder="Notes…" class="w-full font-mono text-xs rounded-lg p-2 border outline-none"
+                                              style="background-color: var(--input-bg); border-color: var(--input-border); color: var(--text-primary)">{{ $todo->description }}</textarea>
 
                                     <div class="flex items-center justify-end gap-2 pt-1 text-xs">
-                                        <button type="button" onclick="hideEditMode({{ $todo->id }})" class="text-slate-400 hover:text-slate-200 px-2 py-1 font-mono">
+                                        <button type="button" onclick="hideEditMode({{ $todo->id }})" class="px-2 py-1 font-mono hover:underline" style="color: var(--text-muted)">
                                             Cancel
                                         </button>
                                         <button type="submit" class="duo-btn-green text-slate-950 font-bold px-3.5 py-1.5 rounded-lg transition-colors">
@@ -987,7 +1146,7 @@
             </div>
 
             <!-- Bottom Productivity Actions -->
-            <div class="flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-[#181d29] font-mono">
+            <div class="flex items-center justify-between text-xs pt-3 border-t font-mono" style="border-color: var(--border-subtle); color: var(--text-muted)">
                 <span>{{ $remainingCount }} active pending</span>
 
                 <div class="flex items-center gap-3">
@@ -1011,7 +1170,7 @@
                             <input type="hidden" name="filter_category" value="{{ $category }}">
                             <input type="hidden" name="search" value="{{ $search }}">
                             <input type="hidden" name="sort" value="{{ $sort }}">
-                            <button type="submit" class="hover:text-rose-400 font-semibold transition-colors">Clear completed</button>
+                            <button type="submit" class="hover:text-rose-500 font-semibold transition-colors">Clear completed</button>
                         </form>
                     @endif
                 </div>
@@ -1020,25 +1179,26 @@
         </div>
 
         <!-- Subtle Footer -->
-        <footer class="mt-8 text-center font-mono text-[10px] text-slate-600 flex items-center justify-center gap-3">
+        <footer class="mt-8 text-center font-mono text-[10px] flex items-center justify-center gap-3" style="color: var(--text-muted)">
             <span>Fay Tasks • Gamified Task Dashboard</span>
             <span>•</span>
-            <button type="button" onclick="toggleShortcutsModal()" class="hover:text-slate-400 underline">Shortcuts (?)</button>
+            <button type="button" onclick="toggleShortcutsModal()" class="hover:underline">Shortcuts (?)</button>
         </footer>
 
     </main>
 
     <!-- Daily Mystery Chest Modal Overlay (Duolingo Style Surprise) -->
-    <div id="chest-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-[#121622] border border-[#2a344a] rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl relative animate-combo-burst">
+    <div id="chest-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl relative animate-combo-burst border"
+             style="background-color: var(--bg-card); border-color: var(--border-card);">
             <div class="w-16 h-16 mx-auto mb-3 text-5xl animate-chest">
                 🎁
             </div>
-            <h3 class="text-lg font-extrabold text-white mb-1">Daily Reward Unlocked!</h3>
-            <p class="text-xs text-slate-400 mb-4" id="chest-reward-message">
+            <h3 class="text-lg font-extrabold mb-1" style="color: var(--text-primary)">Daily Reward Unlocked!</h3>
+            <p class="text-xs mb-4" id="chest-reward-message" style="color: var(--text-secondary)">
                 You earned bonus XP for keeping your streak alive!
             </p>
-            <div class="font-mono text-2xl font-black text-amber-400 mb-6 tracking-tight">
+            <div class="font-mono text-2xl font-black text-amber-500 mb-6 tracking-tight">
                 ⚡️ +50 BONUS XP
             </div>
             <button type="button" onclick="closeMysteryChest()"
@@ -1049,37 +1209,42 @@
     </div>
 
     <!-- Keyboard Shortcuts Modal -->
-    <div id="shortcuts-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-[#121622] border border-[#2a344a] rounded-3xl max-w-md w-full p-6 shadow-2xl relative">
-            <div class="flex items-center justify-between mb-4 pb-3 border-b border-[#1f283d]">
-                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+    <div id="shortcuts-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="rounded-3xl max-w-md w-full p-6 shadow-2xl relative border"
+             style="background-color: var(--bg-card); border-color: var(--border-card);">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b" style="border-color: var(--border-subtle)">
+                <h3 class="text-sm font-bold flex items-center gap-2" style="color: var(--text-primary)">
                     <span>⚡️</span> Keyboard Shortcuts
                 </h3>
-                <button type="button" onclick="toggleShortcutsModal()" class="text-slate-500 hover:text-white font-mono text-sm">✕</button>
+                <button type="button" onclick="toggleShortcutsModal()" class="font-mono text-sm hover:opacity-75" style="color: var(--text-muted)">✕</button>
             </div>
             <div class="space-y-2.5 font-mono text-xs">
                 <div class="flex justify-between items-center py-1">
-                    <span class="text-slate-300">New Task Focus</span>
-                    <kbd class="px-2 py-0.5 rounded bg-[#1a202d] border border-[#2d374d] text-slate-200">N</kbd>
+                    <span style="color: var(--text-secondary)">New Task Focus</span>
+                    <kbd class="px-2 py-0.5 rounded border" style="background-color: var(--metric-bg); border-color: var(--border-subtle); color: var(--text-primary)">N</kbd>
                 </div>
                 <div class="flex justify-between items-center py-1">
-                    <span class="text-slate-300">Search / Filter</span>
-                    <kbd class="px-2 py-0.5 rounded bg-[#1a202d] border border-[#2d374d] text-slate-200">/</kbd>
+                    <span style="color: var(--text-secondary)">Search / Filter</span>
+                    <kbd class="px-2 py-0.5 rounded border" style="background-color: var(--metric-bg); border-color: var(--border-subtle); color: var(--text-primary)">/</kbd>
                 </div>
                 <div class="flex justify-between items-center py-1">
-                    <span class="text-slate-300">Toggle Audio</span>
-                    <kbd class="px-2 py-0.5 rounded bg-[#1a202d] border border-[#2d374d] text-slate-200">M</kbd>
+                    <span style="color: var(--text-secondary)">Toggle Light / Dark Mode</span>
+                    <kbd class="px-2 py-0.5 rounded border" style="background-color: var(--metric-bg); border-color: var(--border-subtle); color: var(--text-primary)">T</kbd>
                 </div>
                 <div class="flex justify-between items-center py-1">
-                    <span class="text-slate-300">Open Mystery Chest</span>
-                    <kbd class="px-2 py-0.5 rounded bg-[#1a202d] border border-[#2d374d] text-slate-200">C</kbd>
+                    <span style="color: var(--text-secondary)">Toggle Audio</span>
+                    <kbd class="px-2 py-0.5 rounded border" style="background-color: var(--metric-bg); border-color: var(--border-subtle); color: var(--text-primary)">M</kbd>
                 </div>
                 <div class="flex justify-between items-center py-1">
-                    <span class="text-slate-300">Pet Mascot</span>
-                    <kbd class="px-2 py-0.5 rounded bg-[#1a202d] border border-[#2d374d] text-slate-200">P</kbd>
+                    <span style="color: var(--text-secondary)">Open Mystery Chest</span>
+                    <kbd class="px-2 py-0.5 rounded border" style="background-color: var(--metric-bg); border-color: var(--border-subtle); color: var(--text-primary)">C</kbd>
+                </div>
+                <div class="flex justify-between items-center py-1">
+                    <span style="color: var(--text-secondary)">Pet Mascot</span>
+                    <kbd class="px-2 py-0.5 rounded border" style="background-color: var(--metric-bg); border-color: var(--border-subtle); color: var(--text-primary)">P</kbd>
                 </div>
             </div>
-            <button type="button" onclick="toggleShortcutsModal()" class="mt-5 w-full duo-btn-card py-2 rounded-xl text-slate-300 font-bold text-xs">
+            <button type="button" onclick="toggleShortcutsModal()" class="mt-5 w-full duo-btn-card py-2.5 rounded-xl font-bold text-xs" style="color: var(--text-primary)">
                 Got it
             </button>
         </div>
@@ -1124,13 +1289,37 @@
             if (mBtn) mBtn.textContent = isAudioEnabled ? '🔊' : '🔇';
         }
 
+        // Theme Toggle: Light / Dark Mode
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            if (isDark) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('fay_theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('fay_theme', 'dark');
+            }
+            updateThemeIcons();
+            playTaskAddSound();
+        }
+
+        function updateThemeIcons() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const icon = document.getElementById('theme-icon');
+            const label = document.getElementById('theme-label');
+            const mobileIcon = document.getElementById('mobile-theme-icon');
+
+            if (icon) icon.textContent = isDark ? '🌙' : '☀️';
+            if (label) label.textContent = isDark ? 'Dark' : 'Light';
+            if (mobileIcon) mobileIcon.textContent = isDark ? '🌙' : '☀️';
+        }
+
         // Duolingo Signature Major Chime on Task Complete (with combo pitch escalation!)
         function playTaskCompleteSound(xp, combo) {
             if (!isAudioEnabled) return;
             const ctx = getAudioContext();
             if (!ctx) return;
 
-            // Pitch climbs higher as combo increases!
             const pitchShift = Math.min(6, (combo - 1) * 2);
             const baseC = 523.25 * Math.pow(1.059463, pitchShift);
             const baseE = 659.25 * Math.pow(1.059463, pitchShift);
@@ -1204,7 +1393,7 @@
             });
         }
 
-        // Soft Pop Sound on Task Add
+        // Soft Pop Sound on Task Add / Action
         function playTaskAddSound() {
             if (!isAudioEnabled) return;
             const ctx = getAudioContext();
@@ -1231,7 +1420,7 @@
         function triggerConfetti(x, y) {
             if (typeof confetti === 'function') {
                 confetti({
-                    particleCount: 50,
+                    particleCount: 55,
                     spread: 70,
                     origin: {
                         x: x ? x / window.innerWidth : 0.5,
@@ -1245,7 +1434,7 @@
         function triggerMegaConfetti() {
             if (typeof confetti === 'function') {
                 confetti({
-                    particleCount: 150,
+                    particleCount: 160,
                     spread: 120,
                     origin: { y: 0.6 },
                     colors: ['#58cc02', '#1cb0f6', '#ff9600', '#ce82ff', '#ffc800', '#6366f1']
@@ -1259,7 +1448,7 @@
             badge.className = 'animate-xp-float font-mono font-black text-xs px-2.5 py-1 rounded-full bg-duo-green text-slate-950 border border-emerald-300 shadow-xl flex items-center gap-1';
             
             if (combo > 1) {
-                badge.innerHTML = `<span>⚡️</span> +${xp} XP <span class="text-[10px] text-indigo-900 bg-white/40 px-1 rounded font-black">${combo}x!</span>`;
+                badge.innerHTML = `<span>⚡️</span> +${xp} XP <span class="text-[10px] text-indigo-950 bg-white/50 px-1 rounded font-black">${combo}x!</span>`;
             } else {
                 badge.innerHTML = `<span>⚡️</span> +${xp} XP`;
             }
@@ -1297,14 +1486,12 @@
             const bubble = document.getElementById('mascot-speech-bubble');
             const quoteEl = document.getElementById('mascot-quote-text');
 
-            // Trigger excited cheer animation
             if (avatar) {
                 avatar.classList.remove('animate-mascot-cheer');
-                void avatar.offsetWidth; // force reflow
+                void avatar.offsetWidth;
                 avatar.classList.add('animate-mascot-cheer');
             }
 
-            // Show speech bubble
             if (bubble && quoteEl) {
                 const randomQuote = mascotQuotes[Math.floor(Math.random() * mascotQuotes.length)];
                 quoteEl.textContent = randomQuote;
@@ -1312,7 +1499,6 @@
                 setTimeout(() => bubble.classList.add('hidden'), 3500);
             }
 
-            // Spawn floating hearts
             if (e) {
                 const rect = e.currentTarget.getBoundingClientRect();
                 const heart = document.createElement('div');
@@ -1365,8 +1551,8 @@
         // Daily Quest Claim
         function claimQuest(questId, xp, btn) {
             btn.textContent = 'Claimed ✓';
-            btn.classList.remove('bg-emerald-500/20', 'text-emerald-300', 'border-emerald-500/40', 'hover:bg-emerald-500');
-            btn.classList.add('bg-slate-700/40', 'text-slate-400', 'border-transparent', 'cursor-default');
+            btn.classList.remove('duo-btn-green');
+            btn.classList.add('bg-slate-300', 'dark:bg-slate-700', 'text-slate-500', 'cursor-default');
             btn.disabled = true;
 
             triggerConfetti();
@@ -1408,6 +1594,7 @@
             }
 
             updateAudioButtonText();
+            updateThemeIcons();
         }
 
         function addXP(amount) {
@@ -1424,7 +1611,6 @@
 
             if (!isCurrentlyDone) {
                 const now = Date.now();
-                // Check if completed within 25 seconds of last completion for combo!
                 if (now - lastCompletionTime < 25000) {
                     comboCount++;
                 } else {
@@ -1432,42 +1618,32 @@
                 }
                 lastCompletionTime = now;
 
-                // Determine XP with priority + combo multiplier
                 let baseXP = priority === 'high' ? 25 : (priority === 'medium' ? 15 : 10);
                 let awardedXP = baseXP * comboCount;
 
-                // Screen coordinates for burst
                 const rect = btn.getBoundingClientRect();
                 const clickX = rect.left + rect.width / 2;
                 const clickY = rect.top + rect.height / 2;
 
-                // Bouncy checkmark pop
                 btn.classList.add('scale-125', 'bg-duo-green', 'border-duo-green', 'text-slate-950');
 
-                // Floating +XP badge
                 spawnFloatingXP(clickX, clickY, awardedXP, comboCount);
 
-                // Show combo banner if 2x or higher!
                 if (comboCount > 1) {
                     showComboBanner(comboCount);
                 }
 
-                // Confetti particle burst
                 triggerConfetti(clickX, clickY);
 
-                // Major arpeggio chime with combo pitch escalation!
                 playTaskCompleteSound(awardedXP, comboCount);
 
-                // Award XP
                 addXP(awardedXP);
 
-                // Mascot jumps and cheers
                 const avatar = document.getElementById('mascot-avatar');
                 if (avatar) {
                     avatar.classList.add('animate-mascot-cheer');
                 }
 
-                // Submit after juicy micro-animation
                 setTimeout(() => form.submit(), 280);
             } else {
                 form.submit();
@@ -1495,7 +1671,6 @@
 
         // Global Keyboard Shortcuts
         document.addEventListener('keydown', (e) => {
-            // Ignore if active inside an input or textarea
             if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) {
                 if (e.key === 'Escape') {
                     document.activeElement.blur();
@@ -1511,6 +1686,8 @@
                 e.preventDefault();
                 const search = document.getElementById('search-input');
                 if (search) search.focus();
+            } else if (e.key === 't' || e.key === 'T') {
+                toggleTheme();
             } else if (e.key === 'm' || e.key === 'M') {
                 toggleAudio();
             } else if (e.key === 'c' || e.key === 'C') {
