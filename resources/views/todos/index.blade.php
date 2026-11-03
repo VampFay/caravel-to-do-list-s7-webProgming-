@@ -7,8 +7,10 @@
     <!-- Google Fonts: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -19,17 +21,19 @@
                         mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
                     },
                     colors: {
-                        dark: {
-                            50: '#f8fafc',
-                            100: '#f1f5f9',
-                            800: '#151922',
-                            850: '#11141b',
-                            900: '#0b0d13',
-                            950: '#07080c',
-                            border: '#1e2433',
-                            borderSubtle: '#161b26',
-                            textMuted: '#64748b',
-                            textDim: '#94a3b8',
+                        duo: {
+                            green: '#58cc02',
+                            greenDark: '#46a302',
+                            blue: '#1cb0f6',
+                            blueDark: '#1899d6',
+                            orange: '#ff9600',
+                            orangeDark: '#e58500',
+                            rose: '#ff4b4b',
+                            roseDark: '#ea2b2b',
+                            purple: '#ce82ff',
+                            purpleDark: '#a544ee',
+                            yellow: '#ffc800',
+                            yellowDark: '#e5b200',
                         }
                     }
                 }
@@ -45,10 +49,111 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
+
         .task-done {
             text-decoration: line-through;
             color: #475569 !important;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
+
+        /* Duolingo 3D Tactile Push Buttons */
+        .duo-btn-primary {
+            background-color: #4f46e5;
+            box-shadow: 0 3px 0 0 #3730a3;
+            transition: all 0.12s ease;
+        }
+        .duo-btn-primary:hover {
+            background-color: #4338ca;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 0 0 #3730a3;
+        }
+        .duo-btn-primary:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 0 #3730a3;
+        }
+
+        .duo-btn-success {
+            background-color: #10b981;
+            box-shadow: 0 3px 0 0 #047857;
+            transition: all 0.12s ease;
+        }
+        .duo-btn-success:hover {
+            background-color: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 0 0 #047857;
+        }
+        .duo-btn-success:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 0 #047857;
+        }
+
+        /* Flame Wiggle Animation */
+        @keyframes flame-wiggle {
+            0%, 100% { transform: scale(1) rotate(-4deg); }
+            50% { transform: scale(1.18) rotate(4deg); }
+        }
+        .animate-flame {
+            display: inline-block;
+            animation: flame-wiggle 1.2s infinite ease-in-out;
+            transform-origin: bottom center;
+        }
+
+        /* Floating XP Pop Animation */
+        @keyframes xp-float {
+            0% { opacity: 0; transform: translateY(8px) scale(0.7); }
+            30% { opacity: 1; transform: translateY(-12px) scale(1.15); }
+            70% { opacity: 1; transform: translateY(-24px) scale(1); }
+            100% { opacity: 0; transform: translateY(-40px) scale(0.9); }
+        }
+        .animate-xp-float {
+            position: fixed;
+            z-index: 100;
+            pointer-events: none;
+            animation: xp-float 1.2s forwards cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Checkbox Bounce Pop */
+        .checkbox-bounce {
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, border-color 0.2s ease;
+        }
+        .checkbox-bounce:hover {
+            transform: scale(1.15);
+        }
+        .checkbox-bounce:active {
+            transform: scale(0.9);
+        }
+
+        /* Liquid Shimmer Progress Bar */
+        @keyframes shimmer-sweep {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(200%); }
+        }
+        .shimmer-bar::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+            animation: shimmer-sweep 2.2s infinite ease-in-out;
+        }
+
+        /* Task Row Card Hover Spring */
+        .task-card {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Milestone Badge Bounce */
+        @keyframes badge-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .milestone-badge {
+            animation: badge-pulse 2s infinite ease-in-out;
+        }
+
         /* Custom sleek scrollbar */
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -58,7 +163,7 @@
 </head>
 <body class="min-h-full flex flex-col md:flex-row bg-[#08090d] text-slate-100 antialiased selection:bg-indigo-500/30 selection:text-indigo-200">
 
-    <!-- Mobile Top Header -->
+    <!-- Mobile Top Header Bar -->
     <header class="md:hidden flex items-center justify-between bg-[#0e1017] border-b border-[#1a1f2c] px-4 py-3 sticky top-0 z-30">
         <div class="flex items-center gap-2.5">
             <div class="w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-mono text-xs font-bold">
@@ -66,18 +171,29 @@
             </div>
             <span class="font-semibold text-slate-100 text-sm tracking-tight">Fay Tasks</span>
         </div>
-        <button type="button" onclick="document.getElementById('sidebar').classList.toggle('hidden')" class="p-1.5 text-slate-400 hover:text-white">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-            </svg>
-        </button>
+        
+        <!-- Mobile Streak & Sound -->
+        <div class="flex items-center gap-2.5">
+            <div class="flex items-center gap-1 bg-[#151924] border border-[#232b3d] px-2.5 py-1 rounded-full text-xs font-mono font-bold text-amber-400">
+                <span class="animate-flame">🔥</span>
+                <span id="mobile-streak-val">3</span>
+            </div>
+            <button type="button" onclick="toggleAudio()" id="mobile-audio-btn" title="Toggle Sound" class="p-1.5 text-slate-400 hover:text-white">
+                🔊
+            </button>
+            <button type="button" onclick="document.getElementById('sidebar').classList.toggle('hidden')" class="p-1.5 text-slate-400 hover:text-white">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                </svg>
+            </button>
+        </div>
     </header>
 
-    <!-- Sidebar Navigation (Linear / Raycast aesthetic) -->
+    <!-- Sidebar Navigation -->
     <aside id="sidebar" class="hidden md:flex flex-col w-64 lg:w-72 bg-[#0b0d13] border-r border-[#181d29] shrink-0 h-screen sticky top-0 p-4 select-none overflow-y-auto">
         
         <!-- Workspace Identification -->
-        <div class="flex items-center justify-between px-2 py-2 mb-4 rounded-xl bg-[#12151e] border border-[#1b212f]">
+        <div class="flex items-center justify-between px-2.5 py-2 mb-4 rounded-xl bg-[#12151e] border border-[#1b212f]">
             <div class="flex items-center gap-2.5 min-w-0">
                 <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white shadow-xs font-mono font-bold text-xs shrink-0">
                     F
@@ -88,6 +204,46 @@
                 </div>
             </div>
             <span class="font-mono text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-medium">v1.0</span>
+        </div>
+
+        <!-- Duolingo Streak & XP Mini Card -->
+        <div class="mb-5 p-3 rounded-xl bg-gradient-to-b from-[#141824] to-[#0f121a] border border-[#21283a] shadow-xs">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-base animate-flame">🔥</span>
+                    <div>
+                        <span class="font-mono text-xs font-bold text-amber-400 leading-none block">
+                            <span id="streak-counter">3</span> Day Streak
+                        </span>
+                        <span class="text-[9px] text-slate-500 font-mono">Keep momentum!</span>
+                    </div>
+                </div>
+
+                <!-- Sound Toggle Button -->
+                <button type="button" onclick="toggleAudio()" id="audio-toggle-btn" title="Toggle audio chime"
+                        class="text-xs px-2 py-0.5 rounded-md bg-[#1b2130] hover:bg-[#252e42] border border-[#2a344a] text-slate-300 font-mono transition">
+                    🔊 Sound
+                </button>
+            </div>
+
+            <!-- XP Progress Bar -->
+            <div class="mt-2.5">
+                <div class="flex justify-between items-center text-[10px] font-mono text-slate-400 mb-1">
+                    <span class="flex items-center gap-1 text-indigo-300 font-semibold">
+                        <span>⚡️</span> <span id="current-xp-val">45</span> XP
+                    </span>
+                    <span class="text-slate-500">Goal: <span id="goal-xp-val">60</span> XP</span>
+                </div>
+                <div class="relative w-full h-2 bg-[#1b202e] rounded-full overflow-hidden shimmer-bar">
+                    <div id="xp-progress-bar"
+                         class="h-full bg-gradient-to-r from-amber-400 via-orange-500 to-indigo-500 rounded-full transition-all duration-700 ease-out"
+                         style="width: 75%"></div>
+                </div>
+                <div class="flex justify-between items-center text-[9px] font-mono text-slate-500 mt-1">
+                    <span id="user-rank-title">Rank: Task Hunter</span>
+                    <span id="daily-status-text">15 XP to Goal</span>
+                </div>
+            </div>
         </div>
 
         <!-- Primary Views -->
@@ -183,7 +339,7 @@
             </div>
         @endif
 
-        <!-- Priority Filters -->
+        <!-- Priority Shortcuts -->
         <div class="mb-5 pt-3 border-t border-[#181d29]">
             <p class="font-mono text-[10px] uppercase tracking-widest text-slate-500 mb-1.5 px-2.5 font-semibold">Priority</p>
             <div class="space-y-0.5 text-xs font-medium">
@@ -193,7 +349,7 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
                         <span>High Priority</span>
                     </span>
-                    <span class="font-mono text-[10px] text-slate-600">III</span>
+                    <span class="font-mono text-[10px] text-slate-600">+25 XP</span>
                 </a>
                 <a href="{{ route('todos.index', ['priority' => 'medium', 'sort' => $sort]) }}"
                    class="flex items-center justify-between px-2.5 py-1 rounded-lg transition-all {{ $priority === 'medium' ? 'bg-amber-500/10 text-amber-300 font-semibold' : 'text-slate-400 hover:text-slate-200 hover:bg-[#121620]' }}">
@@ -201,7 +357,7 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
                         <span>Medium Priority</span>
                     </span>
-                    <span class="font-mono text-[10px] text-slate-600">II</span>
+                    <span class="font-mono text-[10px] text-slate-600">+15 XP</span>
                 </a>
                 <a href="{{ route('todos.index', ['priority' => 'low', 'sort' => $sort]) }}"
                    class="flex items-center justify-between px-2.5 py-1 rounded-lg transition-all {{ $priority === 'low' ? 'bg-emerald-500/10 text-emerald-300 font-semibold' : 'text-slate-400 hover:text-slate-200 hover:bg-[#121620]' }}">
@@ -209,7 +365,7 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                         <span>Low Priority</span>
                     </span>
-                    <span class="font-mono text-[10px] text-slate-600">I</span>
+                    <span class="font-mono text-[10px] text-slate-600">+10 XP</span>
                 </a>
             </div>
         </div>
@@ -229,7 +385,7 @@
     <main class="flex-1 min-w-0 p-5 sm:p-8 lg:p-10 max-w-5xl mx-auto w-full flex flex-col justify-between">
 
         <div>
-            <!-- Top Controls Bar -->
+            <!-- Top View Header -->
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 mb-6 border-b border-[#181d29]">
                 <div>
                     <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
@@ -302,28 +458,28 @@
                 </div>
             @endif
 
-            <!-- High-Precision Metric Strip -->
+            <!-- High-Precision Metric Strip with Shimmer -->
             <div class="bg-[#0e1118] border border-[#1a1f2c] rounded-xl px-4 py-3 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                 <div class="flex items-center gap-4 text-slate-400 font-mono text-[11px]">
                     <span class="text-slate-200 font-semibold">{{ $totalCount }} total</span>
                     <span class="text-slate-600">•</span>
-                    <span class="text-amber-400 font-medium">{{ $remainingCount }} active</span>
+                    <span class="text-amber-400 font-medium">{{ $remainingCount }} in progress</span>
                     <span class="text-slate-600">•</span>
                     <span class="text-emerald-400 font-medium">{{ $completedCount }} completed</span>
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <div class="w-36 bg-[#161a24] h-1.5 rounded-full overflow-hidden">
-                        <div class="bg-indigo-500 h-full rounded-full transition-all duration-500"
+                    <div class="relative w-36 bg-[#161a24] h-2 rounded-full overflow-hidden shimmer-bar">
+                        <div class="bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-400 h-full rounded-full transition-all duration-700 ease-out"
                              style="width: {{ $completionPercentage }}%"></div>
                     </div>
-                    <span class="font-mono text-[10px] text-slate-400">{{ $completionPercentage }}%</span>
+                    <span class="font-mono text-[10px] text-slate-300 font-semibold">{{ $completionPercentage }}%</span>
                 </div>
             </div>
 
-            <!-- Command-Bar Task Creation Input (Linear style) -->
+            <!-- Duolingo-Tactile Command Bar (3D Push Button) -->
             <div class="bg-[#0e1118] border border-[#1e2433] hover:border-[#2d364d] focus-within:border-indigo-500/70 focus-within:ring-1 focus-within:ring-indigo-500/30 rounded-xl p-3 mb-6 transition-all shadow-xs">
-                <form action="{{ route('todos.store') }}" method="POST" id="add-task-form">
+                <form action="{{ route('todos.store') }}" method="POST" id="add-task-form" onsubmit="playTaskAddSound()">
                     @csrf
                     <input type="hidden" name="filter" value="{{ $filter }}">
                     <input type="hidden" name="filter_priority" value="{{ $priority }}">
@@ -332,12 +488,13 @@
                     <input type="hidden" name="sort" value="{{ $sort }}">
 
                     <div class="flex items-center gap-2">
-                        <span class="text-slate-500 text-sm font-mono select-none pl-1">+</span>
-                        <input type="text" name="title" id="task-title-input" placeholder="Create task… (press Return to save)"
+                        <span class="text-indigo-400 text-sm font-mono font-bold select-none pl-1">+</span>
+                        <input type="text" name="title" id="task-title-input" placeholder="Create new task… (press Return to save)"
                                value="{{ old('title') }}" required autofocus
                                class="flex-1 text-sm bg-transparent placeholder:text-slate-600 text-white outline-none">
                         
-                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 shadow-xs">
+                        <!-- Tactile 3D Push Button -->
+                        <button type="submit" class="duo-btn-primary text-white font-semibold text-xs px-3.5 py-1.5 rounded-lg flex items-center gap-1.5">
                             <span>Add</span>
                             <kbd class="font-mono text-[10px] opacity-75">↵</kbd>
                         </button>
@@ -347,13 +504,13 @@
                         <p class="text-xs text-rose-400 font-mono mt-1 pl-4">{{ $message }}</p>
                     @enderror
 
-                    <!-- Inline Quick Controls -->
+                    <!-- Quick Metadata Controls -->
                     <div class="flex flex-wrap items-center gap-2.5 mt-2.5 pt-2.5 border-t border-[#171b26] text-xs pl-4 font-mono">
                         
                         <!-- Priority -->
                         <div class="flex items-center gap-1 text-[11px] text-slate-400">
                             <span class="text-slate-600">pri:</span>
-                            <select name="priority" class="bg-[#121620] border border-[#1e2433] rounded px-2 py-0.5 text-slate-300 outline-none focus:border-indigo-500">
+                            <select name="priority" id="task-priority-select" class="bg-[#121620] border border-[#1e2433] rounded px-2 py-0.5 text-slate-300 outline-none focus:border-indigo-500 cursor-pointer">
                                 <option value="low">Low (I)</option>
                                 <option value="medium" selected>Medium (II)</option>
                                 <option value="high">High (III)</option>
@@ -364,7 +521,7 @@
                         <div class="flex items-center gap-1 text-[11px] text-slate-400">
                             <span class="text-slate-600">due:</span>
                             <input type="date" name="due_date" value="{{ old('due_date') }}"
-                                   class="bg-[#121620] border border-[#1e2433] rounded px-1.5 py-0.5 text-slate-300 outline-none focus:border-indigo-500">
+                                   class="bg-[#121620] border border-[#1e2433] rounded px-1.5 py-0.5 text-slate-300 outline-none focus:border-indigo-500 cursor-pointer">
                         </div>
 
                         <!-- Tag -->
@@ -374,7 +531,7 @@
                                    class="bg-[#121620] border border-[#1e2433] rounded px-2 py-0.5 text-slate-300 outline-none focus:border-indigo-500 w-24">
                         </div>
 
-                        <!-- Notes link -->
+                        <!-- Notes toggle -->
                         <button type="button" onclick="document.getElementById('notes-field').classList.toggle('hidden')" class="text-[11px] text-slate-500 hover:text-slate-300 ml-auto transition">
                             + description
                         </button>
@@ -389,17 +546,17 @@
             </div>
 
             <!-- Task List Table / Rows -->
-            <div class="space-y-1.5 mb-6">
+            <div class="space-y-2 mb-6" id="tasks-container">
                 @if($todos->isEmpty())
                     <div class="text-center py-16 px-4 bg-[#0e1118] border border-[#181d29] rounded-xl">
-                        <div class="w-10 h-10 mx-auto mb-2 rounded-xl bg-[#141822] border border-[#1e2433] flex items-center justify-center text-slate-600 font-mono">
+                        <div class="w-12 h-12 mx-auto mb-2 rounded-2xl bg-[#141822] border border-[#1e2433] flex items-center justify-center text-emerald-400 font-mono text-lg animate-bounce">
                             ✓
                         </div>
                         <p class="text-xs font-mono text-slate-400">
                             @if($filter === 'done')
                                 No completed tasks yet.
                             @elseif($remainingCount === 0 && $totalCount > 0)
-                                All tasks resolved. Clear view ahead.
+                                All tasks resolved! Streak safe for today. 🔥
                             @elseif($search)
                                 No items match query "{{ $search }}".
                             @else
@@ -409,13 +566,14 @@
                     </div>
                 @else
                     @foreach($todos as $todo)
-                        <div class="group bg-[#0e1118] border border-[#1a1f2c] hover:border-[#273045] rounded-xl p-3 transition-all" id="todo-row-{{ $todo->id }}">
+                        <div class="task-card group bg-[#0e1118] border border-[#1a1f2c] hover:border-[#2b354d] rounded-xl p-3" id="todo-row-{{ $todo->id }}">
                             
                             <!-- Row Content -->
                             <div class="flex items-start gap-3" id="view-mode-{{ $todo->id }}">
                                 
-                                <!-- Custom Geometric Checkbox -->
-                                <form action="{{ route('todos.toggle', $todo) }}" method="POST" class="pt-0.5 shrink-0">
+                                <!-- Bouncy Checkbox Toggle -->
+                                <form action="{{ route('todos.toggle', $todo) }}" method="POST" class="pt-0.5 shrink-0"
+                                      onsubmit="handleTaskToggle(event, {{ $todo->id }}, {{ $todo->completed ? 'true' : 'false' }}, '{{ $todo->priority }}')">
                                     @csrf
                                     @method('PATCH')
                                     <input type="hidden" name="filter" value="{{ $filter }}">
@@ -424,9 +582,9 @@
                                     <input type="hidden" name="search" value="{{ $search }}">
                                     <input type="hidden" name="sort" value="{{ $sort }}">
 
-                                    <button type="submit"
-                                            class="w-4 h-4 rounded-[4px] border transition-colors flex items-center justify-center cursor-pointer {{ $todo->completed ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-[#2c3547] hover:border-slate-400 bg-[#121620] text-transparent' }}">
-                                        <svg class="w-2.5 h-2.5 fill-current stroke-current" stroke-width="2.5" viewBox="0 0 20 20">
+                                    <button type="submit" id="check-btn-{{ $todo->id }}"
+                                            class="checkbox-bounce w-5 h-5 rounded-[5px] border flex items-center justify-center cursor-pointer {{ $todo->completed ? 'bg-emerald-500 border-emerald-500 text-white shadow-xs' : 'border-[#2c3547] hover:border-indigo-400 bg-[#121620] text-transparent' }}">
+                                        <svg class="w-3 h-3 fill-current stroke-current" stroke-width="2.5" viewBox="0 0 20 20">
                                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                                         </svg>
                                     </button>
@@ -438,11 +596,11 @@
                                         
                                         <!-- Linear-Style Priority Bars -->
                                         @if($todo->priority === 'high')
-                                            <span class="font-mono text-[10px] text-rose-400 font-bold tracking-tighter" title="High Priority">III</span>
+                                            <span class="font-mono text-[10px] text-rose-400 font-bold tracking-tighter" title="High Priority (+25 XP)">III</span>
                                         @elseif($todo->priority === 'medium')
-                                            <span class="font-mono text-[10px] text-amber-400 font-semibold tracking-tighter" title="Medium Priority">II</span>
+                                            <span class="font-mono text-[10px] text-amber-400 font-semibold tracking-tighter" title="Medium Priority (+15 XP)">II</span>
                                         @else
-                                            <span class="font-mono text-[10px] text-slate-600 font-medium tracking-tighter" title="Low Priority">I</span>
+                                            <span class="font-mono text-[10px] text-slate-600 font-medium tracking-tighter" title="Low Priority (+10 XP)">I</span>
                                         @endif
 
                                         <span class="text-sm font-medium tracking-tight break-words {{ $todo->completed ? 'task-done' : 'text-slate-100' }}">
@@ -452,7 +610,7 @@
                                         <!-- Tag Pill -->
                                         @if($todo->category)
                                             <a href="{{ route('todos.index', ['category' => $todo->category, 'sort' => $sort]) }}"
-                                               class="font-mono text-[10px] text-slate-400 hover:text-slate-200 bg-[#141822] border border-[#1e2433] px-1.5 py-0.2 rounded transition">
+                                               class="font-mono text-[10px] text-slate-400 hover:text-slate-200 bg-[#141822] border border-[#1e2433] px-1.5 py-0.2 rounded transition hover:scale-105">
                                                 #{{ $todo->category }}
                                             </a>
                                         @endif
@@ -472,10 +630,10 @@
                                     @endif
                                 </div>
 
-                                <!-- Actions Menu on Hover -->
+                                <!-- Actions Toolbar on Hover -->
                                 <div class="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-slate-500">
                                     <button type="button" onclick="showEditMode({{ $todo->id }})" title="Edit"
-                                            class="p-1 hover:text-slate-200 transition">
+                                            class="p-1.5 hover:text-slate-200 hover:bg-[#1a202c] rounded-md transition-transform active:scale-90">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
                                         </svg>
@@ -490,7 +648,7 @@
                                         <input type="hidden" name="search" value="{{ $search }}">
                                         <input type="hidden" name="sort" value="{{ $sort }}">
 
-                                        <button type="submit" title="Delete" class="p-1 hover:text-rose-400 transition">
+                                        <button type="submit" title="Delete" class="p-1.5 hover:text-rose-400 hover:bg-rose-500/10 rounded-md transition-transform active:scale-90">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
@@ -534,7 +692,7 @@
                                         <button type="button" onclick="hideEditMode({{ $todo->id }})" class="text-slate-400 hover:text-slate-200 px-2 py-1">
                                             Cancel
                                         </button>
-                                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-3 py-1 rounded transition-colors">
+                                        <button type="submit" class="duo-btn-primary text-white font-medium px-3.5 py-1 rounded-lg transition-colors">
                                             Save Changes
                                         </button>
                                     </div>
@@ -559,7 +717,7 @@
                             <input type="hidden" name="filter_category" value="{{ $category }}">
                             <input type="hidden" name="search" value="{{ $search }}">
                             <input type="hidden" name="sort" value="{{ $sort }}">
-                            <button type="submit" class="hover:text-indigo-400 transition-colors">Mark all done</button>
+                            <button type="submit" onclick="triggerMegaConfetti()" class="hover:text-indigo-400 transition-colors">Mark all done</button>
                         </form>
                     @endif
 
@@ -581,13 +739,203 @@
 
         <!-- Subtle Footer -->
         <footer class="mt-8 text-center font-mono text-[10px] text-slate-600">
-            Fay Tasks • High-Precision Task Dashboard
+            Fay Tasks • High-Precision Gamified Task Dashboard
         </footer>
 
     </main>
 
-    <!-- Client Scripts -->
+    <!-- Web Audio Synthesizer & Duolingo Animations Scripts -->
     <script>
+        // Audio Synthesizer via Web Audio API (Zero external MP3 dependencies!)
+        let audioCtx = null;
+        let isAudioEnabled = localStorage.getItem('fay_audio_enabled') !== 'false';
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) {
+                    audioCtx = new AudioContextClass();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function toggleAudio() {
+            isAudioEnabled = !isAudioEnabled;
+            localStorage.setItem('fay_audio_enabled', isAudioEnabled);
+            updateAudioButtonText();
+            if (isAudioEnabled) {
+                playTaskCompleteSound(15);
+            }
+        }
+
+        function updateAudioButtonText() {
+            const btn = document.getElementById('audio-toggle-btn');
+            const mBtn = document.getElementById('mobile-audio-btn');
+            if (btn) btn.textContent = isAudioEnabled ? '🔊 Sound' : '🔇 Muted';
+            if (mBtn) mBtn.textContent = isAudioEnabled ? '🔊' : '🔇';
+        }
+
+        // Duolingo Signature Major Chime on Task Complete
+        function playTaskCompleteSound(xp) {
+            if (!isAudioEnabled) return;
+            const ctx = getAudioContext();
+            if (!ctx) return;
+
+            const notes = xp >= 25 ? [523.25, 659.25, 783.99, 1046.50] : [523.25, 659.25, 783.99]; // C5, E5, G5, C6
+            const startTime = ctx.currentTime;
+
+            notes.forEach((freq, index) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, startTime + index * 0.08);
+
+                gain.gain.setValueAtTime(0, startTime + index * 0.08);
+                gain.gain.linearRampToValueAtTime(0.2, startTime + index * 0.08 + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + index * 0.08 + 0.35);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start(startTime + index * 0.08);
+                osc.stop(startTime + index * 0.08 + 0.35);
+            });
+        }
+
+        // Soft Pop Sound on Task Add
+        function playTaskAddSound() {
+            if (!isAudioEnabled) return;
+            const ctx = getAudioContext();
+            if (!ctx) return;
+
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(330, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.12);
+
+            gain.gain.setValueAtTime(0.2, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.15);
+        }
+
+        // Confetti Burst Trigger
+        function triggerConfetti(x, y) {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 45,
+                    spread: 60,
+                    origin: {
+                        x: x ? x / window.innerWidth : 0.5,
+                        y: y ? y / window.innerHeight : 0.5
+                    },
+                    colors: ['#58cc02', '#1cb0f6', '#ff9600', '#ce82ff', '#ffc800', '#6366f1']
+                });
+            }
+        }
+
+        function triggerMegaConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 120,
+                    spread: 100,
+                    origin: { y: 0.6 },
+                    colors: ['#58cc02', '#1cb0f6', '#ff9600', '#ce82ff', '#ffc800']
+                });
+            }
+        }
+
+        // Floating +XP Badge Animation
+        function spawnFloatingXP(x, y, xp) {
+            const badge = document.createElement('div');
+            badge.className = 'animate-xp-float font-mono font-bold text-xs px-2.5 py-1 rounded-full bg-emerald-500 text-slate-950 border border-emerald-300 shadow-lg';
+            badge.textContent = `+${xp} XP`;
+            badge.style.left = `${x - 20}px`;
+            badge.style.top = `${y - 15}px`;
+            document.body.appendChild(badge);
+
+            setTimeout(() => badge.remove(), 1200);
+        }
+
+        // Duolingo Gamification State Management (localStorage)
+        function initGamification() {
+            let streak = parseInt(localStorage.getItem('fay_streak') || '3', 10);
+            let xp = parseInt(localStorage.getItem('fay_xp') || '45', 10);
+            const goalXP = 60;
+
+            document.getElementById('streak-counter').textContent = streak;
+            document.getElementById('mobile-streak-val').textContent = streak;
+            document.getElementById('current-xp-val').textContent = xp;
+            document.getElementById('goal-xp-val').textContent = goalXP;
+
+            const pct = Math.min(100, Math.round((xp / goalXP) * 100));
+            document.getElementById('xp-progress-bar').style.width = `${pct}%`;
+
+            if (xp >= goalXP) {
+                document.getElementById('user-rank-title').textContent = 'Rank: Master (Goal Met!)';
+                document.getElementById('daily-status-text').textContent = '🔥 Goal Achieved';
+            } else {
+                document.getElementById('daily-status-text').textContent = `${goalXP - xp} XP to Goal`;
+            }
+
+            updateAudioButtonText();
+        }
+
+        function addXP(amount) {
+            let xp = parseInt(localStorage.getItem('fay_xp') || '45', 10) + amount;
+            localStorage.setItem('fay_xp', xp);
+            initGamification();
+        }
+
+        // Intercept Task Toggle Form to trigger juicy animations before submitting!
+        function handleTaskToggle(event, id, isCurrentlyDone, priority) {
+            event.preventDefault();
+            const form = event.target;
+            const btn = document.getElementById('check-btn-' + id);
+
+            if (!isCurrentlyDone) {
+                // Determine XP by priority
+                const xp = priority === 'high' ? 25 : (priority === 'medium' ? 15 : 10);
+                
+                // Get button screen coordinates for particle burst
+                const rect = btn.getBoundingClientRect();
+                const clickX = rect.left + rect.width / 2;
+                const clickY = rect.top + rect.height / 2;
+
+                // Visual bouncy checkmark pop
+                btn.classList.add('scale-125', 'bg-emerald-500', 'border-emerald-500', 'text-white');
+                
+                // Spawn floating +XP badge
+                spawnFloatingXP(clickX, clickY, xp);
+
+                // Confetti particle burst
+                triggerConfetti(clickX, clickY);
+
+                // Play major arpeggio chime!
+                playTaskCompleteSound(xp);
+
+                // Award XP in state
+                addXP(xp);
+
+                // Slight delay for animation before submitting form
+                setTimeout(() => form.submit(), 250);
+            } else {
+                form.submit();
+            }
+        }
+
+        // Edit row helper
         function showEditMode(id) {
             const v = document.getElementById('view-mode-' + id);
             const e = document.getElementById('edit-mode-' + id);
@@ -606,7 +954,10 @@
             }
         }
 
+        // Init on DOM ready
         document.addEventListener('DOMContentLoaded', () => {
+            initGamification();
+
             const flash = document.getElementById('flash-banner');
             if (flash) {
                 setTimeout(() => {
