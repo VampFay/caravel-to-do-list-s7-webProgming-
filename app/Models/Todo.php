@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Todo extends Model
 {
@@ -29,6 +30,11 @@ class Todo extends Model
         'completed' => 'boolean',
         'due_date' => 'date',
     ];
+
+    public function notes(): HasMany
+    {
+        return $this->hasMany(Note::class);
+    }
 
     public function isOverdue(): bool
     {

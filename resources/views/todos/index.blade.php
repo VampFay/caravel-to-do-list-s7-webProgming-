@@ -553,6 +553,20 @@
             </button>
         </div>
 
+        <!-- Primary Dual-Mode Navigation Switcher (Tasks vs Notes) -->
+        <div class="grid grid-cols-2 gap-1.5 p-1 mb-3.5 rounded-2xl border"
+             style="background: var(--glass-bg); border-color: var(--glass-border);">
+            <a href="{{ route('todos.index') }}"
+               class="py-2 px-2.5 rounded-xl text-center text-xs font-mono font-bold transition flex items-center justify-center gap-1.5 shadow-sm"
+               style="background: var(--glass-card); border: 1px solid var(--glass-border); color: var(--text-primary);">
+                <span>🎯 Tasks</span>
+            </a>
+            <a href="{{ route('notes.index') }}"
+               class="py-2 px-2.5 rounded-xl text-center text-xs font-mono font-bold transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-200 hover:bg-white/5">
+                <span>📝 Notes</span>
+            </a>
+        </div>
+
         <!-- Lo-Fi Music & Focus Engine Strip -->
         <div class="p-3 mb-3.5 rounded-2xl border transition-all"
              style="background: var(--glass-bg); border-color: var(--glass-border);">
@@ -824,6 +838,18 @@
                     </div>
                     <span id="stat-completed" class="font-mono text-[10px] px-2 py-0.5 rounded-lg font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-300">
                         {{ $completedCount }}
+                    </span>
+                </a>
+
+                <a href="{{ route('notes.index') }}"
+                   class="flex items-center justify-between px-3 py-2 rounded-xl transition-all hover:scale-[1.01]"
+                   style="color: var(--text-secondary);">
+                    <div class="flex items-center gap-2">
+                        <span class="text-indigo-400 text-sm">📝</span>
+                        <span>Notes & Scratchpad</span>
+                    </div>
+                    <span class="font-mono text-[10px] px-2 py-0.5 rounded-lg font-bold bg-indigo-500/20 text-indigo-400">
+                        {{ \App\Models\Note::count() }}
                     </span>
                 </a>
             </nav>
@@ -1356,6 +1382,11 @@
             </div>
 
             <div class="mt-2 space-y-1 max-h-72 overflow-y-auto text-xs font-mono" id="palette-items">
+                <a href="{{ route('notes.index') }}"
+                   class="w-full flex items-center justify-between p-2.5 rounded-xl text-left hover:bg-purple-500/15 hover:text-purple-400 transition font-bold">
+                    <span>📝 Switch to Notes & Scratchpad</span>
+                    <kbd class="text-[10px] opacity-60">Notes</kbd>
+                </a>
                 <button type="button" onclick="focusNewTask(); closeCommandPalette();"
                         class="w-full flex items-center justify-between p-2.5 rounded-xl text-left hover:bg-indigo-500/15 hover:text-indigo-400 transition font-bold">
                     <span>➕ Create new task</span>

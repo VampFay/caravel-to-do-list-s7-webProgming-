@@ -59,14 +59,24 @@ A developer-grade, high-performance To-Do application and productivity dashboard
 - **Export to Markdown**: Instant generation of `fay-tasks.md` with GitHub/Obsidian checklist syntax (`- [ ]`, `- [x]`).
 - **Bulk Import Engine**: Dedicated modal supporting drag-and-drop `.json` file upload or raw JSON text paste, with optimistic client-side card rendering and server sync.
 
-### 🦉 7. Gamification & Duo-Fay Mascot
+### 📝 7. Integrated Notes & Scratchpad Workspace
+- **Dual-Pane Apple Notes / Linear Docs Experience**:
+  - Left pane: Real-time search, category tags (`#Engineering`, `#Ideas`, `#Audio`, `#Scratchpad`), pinned notes (`📌 Pinned`), and snippet previews.
+  - Right pane: Distraction-free markdown writing canvas with live word and character counters.
+- **Sub-500ms Debounced Auto-Save**: Real-time asynchronous saving with green glowing `Saved` indicator.
+- **⚡️ 1-Click "Convert to Task"**: Turns any note or memo into an actionable To-Do task in Fay Tasks with one click.
+- **Pastel Glass Color Themes**: 6 translucent tints (Classic Glass, Warm Amber, Mint Emerald, Sky Blue, Lavender Purple, Coral Rose).
+- **Markdown Quick Tool Strip**: Instant shortcuts for Bold, Italic, H3 Headings, Bullet Lists, Todo Checklists (`- [ ]`), and Code Blocks.
+- **Unified Productivity Flow**: Seamless dual-mode navigation switcher between Tasks and Notes in header, sidebar, and Command Palette (<kbd>⌘K</kbd>).
+
+### 🦉 8. Gamification & Duo-Fay Mascot
 - **Interactive Vector Owl Mascot**: Real-time eye tracking that follows the user's mouse cursor across the screen, natural eyelid blinking, wing flutter, speech bubble quotes, and cheer celebration flips.
 - **7-Day Streak Calendar**: Flame glow nodes with active streak counts and Ice Shield freeze protection (`🧊 1 Shield`).
 - **Leveling System**: Dynamic XP progression bar, rank progression (*Focus Archer ➔ Flow Master ➔ Obsidian Champion*), and level-up celebration fanfare.
 - **Obsidian League Leaderboard**: Visual competitive standings modal with live user position.
 - **Daily Mystery Chest**: Wiggling chest with bonus XP rewards and mega confetti cannon blast.
 
-### ⏱️ 8. Pomodoro Deep Work Flow
+### ⏱️ 9. Pomodoro Deep Work Flow
 - 25-minute focus session with circular SVG countdown timer.
 - Automatic Lo-Fi ambient music sync upon timer start.
 - Rewarding completion celebration with +50 XP and fanfare sound.
@@ -114,8 +124,8 @@ php artisan test
 ```
 
 **Results:**
-- **23 Feature Tests**
-- **68 Assertions**
+- **32 Feature Tests**
+- **101 Assertions**
 - **100% Pass Rate**
 - **Code Style Compliant with Laravel Pint (`./vendor/bin/pint --test`)**
 
@@ -126,23 +136,29 @@ php artisan test
 ```
 ├── app/
 │   ├── Http/Controllers/
+│   │   ├── NoteController.php      # Notes & Scratchpad controller (Auto-save, Pinned, Convert to Task)
 │   │   └── TodoController.php      # Dual-mode HTTP/JSON controller (Optimistic AJAX, CRUD, Bulk, Import)
 │   └── Models/
+│       ├── Note.php                # Eloquent model for Notes with scopes & snippet accessors
 │       └── Todo.php                # Eloquent model with scopes (status, priority, search, category)
 ├── database/
 │   ├── migrations/
-│   │   └── 2026_11_03_000000_create_todos_table.php
+│   │   ├── 2026_11_03_000000_create_todos_table.php
+│   │   └── 2026_11_04_045511_create_notes_table.php
 │   └── seeders/
-│       └── DatabaseSeeder.php      # Clean, realistic initial tasks
+│       └── DatabaseSeeder.php      # Realistic initial tasks and notes
 ├── resources/
 │   └── views/
+│       ├── notes/
+│       │   └── index.blade.php     # Dual-pane glass fluid Notes workspace with debounced auto-save
 │       └── todos/
 │           └── index.blade.php     # Glass fluid single-page view with Web Audio synthesizer & 60fps AJAX
 ├── routes/
-│   └── web.php                     # Clean RESTful routes + bulk endpoints + import
+│   └── web.php                     # Clean RESTful routes for Todos & Notes + bulk & convert endpoints
 ├── tests/
 │   └── Feature/
-│       └── TodoTest.php            # 23 comprehensive PHPUnit feature tests
+│       ├── NoteTest.php            # 9 comprehensive PHPUnit feature tests for Notes
+│       └── TodoTest.php            # 23 comprehensive PHPUnit feature tests for Todos
 └── README.md
 ```
 
