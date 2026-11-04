@@ -216,6 +216,55 @@ class TodoController extends Controller
     }
 
     /**
+     * Bulk import todos from JSON payload or uploaded file.
+     */
+    public function import(Request $request): JsonResponse|RedirectResponse
+    {
+        $items = $request->input('todos', []);
+
+        if (empty($items) && $request->hasFile('file')) {
+            $content = file_get_contents($request->file('file')->getRealPath());
+            $decoded = json_decode($content, true);
+            $items = $decoded['todos'] ?? (is_array($decoded) ? $decoded : []);
+        } elseif (is_string($items)) {
+            $decoded = json_decode($items, true);
+            if (is_array($decoded)) {
+                $items = $decoded['todos'] ?? $decoded;
+            }
+        }
+
+        $imported = [];
+        if (is_array($items)) {
+            foreach ($items as $item) {
+                if (! empty($item['title']) && is_string($item['title'])) {
+                    $imported[] = Todo::create([
+                        'title' => trim(substr($item['title'], 0, 255)),
+                        'description' => filled($item['description'] ?? null) ? trim(substr($item['description'], 0, 1000)) : null,
+                        'priority' => in_array($item['priority'] ?? 'medium', ['low', 'medium', 'high'], true) ? $item['priority'] : 'medium',
+                        'due_date' => filled($item['due_date'] ?? null) ? $item['due_date'] : null,
+                        'category' => filled($item['category'] ?? null) ? trim(substr($item['category'], 0, 50)) : null,
+                        'completed' => ! empty($item['completed']),
+                    ]);
+                }
+            }
+        }
+
+        $count = count($imported);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $count > 0 ? "Successfully imported {$count} tasks!" : 'No valid tasks found to import.',
+                'imported_count' => $count,
+                'todos' => $imported,
+                'stats' => $this->getStats(),
+            ]);
+        }
+
+        return $this->redirectWithParams($request, $count > 0 ? "Successfully imported {$count} tasks!" : 'No valid tasks found to import.');
+    }
+
+    /**
      * Calculate and return key metrics.
      */
     protected function getStats(): array

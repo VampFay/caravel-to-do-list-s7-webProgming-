@@ -427,6 +427,52 @@
         ::-webkit-scrollbar-thumb:hover {
             background: var(--text-muted);
         }
+
+        /* Vim / Linear Keyboard Active Glow Focus */
+        .task-card-focused {
+            border-color: rgba(99, 102, 241, 0.75) !important;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4), 0 16px 44px 0 rgba(99, 102, 241, 0.25) !important;
+            transform: translateY(-3.5px) scale(1.012) !important;
+            background: var(--glass-card-hover) !important;
+        }
+
+        /* Tactile Quick Chips */
+        .chip-btn {
+            transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+            user-select: none;
+        }
+        .chip-btn:hover {
+            transform: translateY(-1.5px);
+        }
+        .chip-btn:active {
+            transform: translateY(1.5px);
+        }
+        .chip-pri-active {
+            box-shadow: 0 0 0 1.5px currentColor, 0 3px 8px rgba(0, 0, 0, 0.12);
+            font-weight: 800;
+        }
+
+        /* Frosted Glass Volume Slider */
+        input[type=range].glass-slider {
+            -webkit-appearance: none;
+            background: var(--tag-glass);
+            height: 4px;
+            border-radius: 9999px;
+            outline: none;
+        }
+        input[type=range].glass-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #58cc02;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(88, 204, 2, 0.4);
+            transition: transform 0.1s ease;
+        }
+        input[type=range].glass-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.25);
+        }
     </style>
 </head>
 <body class="min-h-full flex flex-col md:flex-row antialiased selection:bg-indigo-500/30 selection:text-indigo-400 relative overflow-x-hidden">
@@ -524,6 +570,18 @@
                 </div>
             </div>
 
+            <!-- Track Switcher Pills -->
+            <div class="grid grid-cols-2 gap-1 mb-2">
+                <button type="button" onclick="setLofiTrack('cafe')" id="track-btn-cafe"
+                        class="py-1 px-1.5 rounded-lg border text-[10px] font-mono font-bold transition flex items-center justify-center gap-1 bg-indigo-500/15 border-indigo-500/40 text-indigo-400">
+                    <span>☕️</span> Cafe 72
+                </button>
+                <button type="button" onclick="setLofiTrack('midnight')" id="track-btn-midnight"
+                        class="py-1 px-1.5 rounded-lg border text-[10px] font-mono font-bold transition flex items-center justify-center gap-1 text-slate-400 border-transparent hover:border-slate-500/30">
+                    <span>🌌</span> Night 52
+                </button>
+            </div>
+
             <!-- Play / Pause Lo-Fi Stream -->
             <button type="button" onclick="toggleLofiMusic()" id="lofi-music-btn"
                     class="w-full py-2 px-3 rounded-xl duo-btn-glass flex items-center justify-between text-xs font-mono font-bold transition group">
@@ -531,8 +589,15 @@
                     <span id="lofi-play-icon">▶</span>
                     <span id="lofi-status-text">Play Lo-Fi Beats</span>
                 </span>
-                <span class="text-[9px] text-slate-400 font-mono">72 BPM</span>
+                <span id="lofi-bpm-text" class="text-[9px] text-slate-400 font-mono">72 BPM</span>
             </button>
+
+            <!-- Frosted Glass Volume Slider -->
+            <div class="mt-2.5 pt-2 border-t flex items-center justify-between gap-2 text-[10px] font-mono" style="border-color: var(--glass-border-subtle)">
+                <span class="text-xs select-none">🔈</span>
+                <input type="range" min="0" max="100" value="75" id="lofi-volume-slider" oninput="setLofiVolume(this.value)" class="glass-slider flex-1">
+                <span id="lofi-volume-label" class="text-[9px] w-7 text-right font-bold" style="color: var(--text-muted)">75%</span>
+            </div>
         </div>
 
         <!-- Quick Access: Pomodoro & Command Palette Buttons -->
@@ -906,8 +971,8 @@
                     </p>
                 </div>
 
-                <!-- Instant Search & Sort -->
-                <div class="flex items-center gap-2">
+                <!-- Instant Search, Sort & Action Tools -->
+                <div class="flex items-center flex-wrap gap-2">
                     <form action="{{ route('todos.index') }}" method="GET" class="relative">
                         <input type="hidden" name="filter" value="{{ $filter }}">
                         <input type="hidden" name="priority" value="{{ $priority }}">
@@ -919,7 +984,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
                             </svg>
                             <input type="text" name="search" value="{{ $search }}" placeholder="Filter (/ or ⌘K)" id="search-input"
-                                   class="pl-8 pr-7 py-2 font-mono text-xs rounded-xl border outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all w-36 sm:w-48 focus:w-56 glass-panel"
+                                   class="pl-8 pr-7 py-2 font-mono text-xs rounded-xl border outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all w-32 sm:w-44 focus:w-52 glass-panel"
                                    style="border-color: var(--glass-border); color: var(--text-primary)">
                             @if($search)
                                 <a href="{{ route('todos.index', ['filter' => $filter, 'priority' => $priority, 'category' => $category, 'sort' => $sort]) }}"
@@ -934,7 +999,7 @@
                         <input type="hidden" name="category" value="{{ $category }}">
                         <input type="hidden" name="search" value="{{ $search }}">
                         <select name="sort" onchange="this.form.submit()"
-                                class="font-mono text-xs rounded-xl px-3 py-2 border outline-none cursor-pointer focus:ring-2 focus:ring-indigo-500/40 transition glass-panel"
+                                class="font-mono text-xs rounded-xl px-2.5 py-2 border outline-none cursor-pointer focus:ring-2 focus:ring-indigo-500/40 transition glass-panel"
                                 style="border-color: var(--glass-border); color: var(--text-secondary)">
                             <option value="latest" {{ $sort === 'latest' ? 'selected' : '' }}>Recent</option>
                             <option value="due_date" {{ $sort === 'due_date' ? 'selected' : '' }}>Due Date</option>
@@ -942,6 +1007,42 @@
                             <option value="oldest" {{ $sort === 'oldest' ? 'selected' : '' }}>Oldest</option>
                         </select>
                     </form>
+
+                    <!-- Export & Import Quick Tool Buttons -->
+                    <div class="relative group">
+                        <button type="button" class="py-2 px-2.5 rounded-xl border text-xs font-mono font-bold flex items-center gap-1.5 transition active:scale-95 glass-panel"
+                                style="border-color: var(--glass-border); color: var(--text-secondary);">
+                            <span>📥</span>
+                            <span class="hidden sm:inline">Export</span>
+                            <span class="text-[9px] opacity-60">▾</span>
+                        </button>
+                        <div class="hidden group-hover:block absolute right-0 top-full mt-1 w-36 rounded-2xl border shadow-xl py-1 z-30 glass-panel"
+                             style="border-color: var(--glass-border);">
+                            <button type="button" onclick="exportTasksJSON()" class="w-full text-left px-3 py-1.5 text-xs font-mono font-bold hover:bg-indigo-500/15 hover:text-indigo-400 transition flex items-center justify-between">
+                                <span>JSON File</span>
+                                <span class="text-[9px] text-amber-500">.json</span>
+                            </button>
+                            <button type="button" onclick="exportTasksMarkdown()" class="w-full text-left px-3 py-1.5 text-xs font-mono font-bold hover:bg-indigo-500/15 hover:text-indigo-400 transition flex items-center justify-between">
+                                <span>Markdown</span>
+                                <span class="text-[9px] text-sky-400">.md</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="openImportModal()" title="Import Tasks"
+                            class="py-2 px-2.5 rounded-xl border text-xs font-mono font-bold flex items-center gap-1.5 transition active:scale-95 glass-panel"
+                            style="border-color: var(--glass-border); color: var(--text-secondary);">
+                        <span>📤</span>
+                        <span class="hidden sm:inline">Import</span>
+                    </button>
+
+                    <!-- Vim Nav Pill Indicator -->
+                    <button type="button" onclick="navigateTasks(1)" title="Keyboard Vim Nav (J / K / Space / E / Del)"
+                            class="py-2 px-2.5 rounded-xl border text-xs font-mono font-bold flex items-center gap-1 transition active:scale-95 hover:border-indigo-400/50"
+                            style="background: var(--tag-glass); border-color: var(--glass-border); color: var(--text-muted)">
+                        <span class="text-indigo-400">⌨️</span>
+                        <span class="hidden md:inline text-[10px]">J/K</span>
+                    </button>
                 </div>
             </div>
 
@@ -1001,29 +1102,71 @@
                         </button>
                     </div>
 
-                    <!-- Quick Metadata Controls -->
-                    <div class="flex flex-wrap items-center gap-2.5 mt-3 pt-3 border-t text-xs pl-4 font-mono" style="border-color: var(--glass-border-subtle)">
+                    <!-- Quick Metadata Controls: Tactile Priority & Quick Date Chips -->
+                    <div class="flex flex-wrap items-center gap-3 mt-3 pt-3 border-t text-xs pl-2 sm:pl-4 font-mono" style="border-color: var(--glass-border-subtle)">
+                        
+                        <!-- Tactile Priority Pill Buttons -->
                         <div class="flex items-center gap-1.5 text-[11px]" style="color: var(--text-secondary)">
                             <span style="color: var(--text-muted)">pri:</span>
-                            <select name="priority" id="task-priority-select" class="rounded-lg px-2 py-0.5 border outline-none cursor-pointer glass-panel"
-                                    style="border-color: var(--glass-border); color: var(--text-secondary)">
-                                <option value="low">Low (I)</option>
-                                <option value="medium" selected>Medium (II)</option>
-                                <option value="high">High (III)</option>
+                            <input type="hidden" name="priority" id="task-priority-val" value="medium">
+                            <select name="priority_select_fallback" id="task-priority-select" onchange="setTaskPriority(this.value)" class="hidden">
+                                <option value="low">low</option>
+                                <option value="medium" selected>medium</option>
+                                <option value="high">high</option>
                             </select>
+
+                            <div class="flex items-center gap-1">
+                                <button type="button" onclick="setTaskPriority('low', this)" id="pri-chip-low"
+                                        class="chip-btn chip-pri px-2 py-0.5 rounded-lg border text-[10px] font-bold text-slate-500 dark:text-slate-400 bg-slate-500/10 border-slate-500/20"
+                                        title="Low Priority (+10 XP)">
+                                    ⚪ Low
+                                </button>
+                                <button type="button" onclick="setTaskPriority('medium', this)" id="pri-chip-medium"
+                                        class="chip-btn chip-pri chip-pri-active px-2 py-0.5 rounded-lg border text-[10px] font-bold text-amber-500 bg-amber-500/15 border-amber-500/40"
+                                        title="Medium Priority (+15 XP)">
+                                    🟡 Med
+                                </button>
+                                <button type="button" onclick="setTaskPriority('high', this)" id="pri-chip-high"
+                                        class="chip-btn chip-pri px-2 py-0.5 rounded-lg border text-[10px] font-bold text-rose-500 bg-rose-500/10 border-rose-500/20"
+                                        title="High Priority (+25 XP)">
+                                    🔴 High
+                                </button>
+                            </div>
                         </div>
 
-                        <div class="flex items-center gap-1.5 text-[11px]" style="color: var(--text-secondary)">
+                        <!-- Due Date Input & 1-Click Quick Chips -->
+                        <div class="flex items-center gap-1.5 text-[11px] flex-wrap" style="color: var(--text-secondary)">
                             <span style="color: var(--text-muted)">due:</span>
-                            <input type="date" name="due_date" id="task-due-date-input"
+                            <input type="date" name="due_date" id="task-due-date-input" onchange="handleDateInputChange(this.value)"
                                    class="rounded-lg px-1.5 py-0.5 border outline-none cursor-pointer glass-panel"
                                    style="border-color: var(--glass-border); color: var(--text-secondary)">
+                            
+                            <div class="flex items-center gap-1 text-[10px]">
+                                <button type="button" onclick="setQuickDueDate('today')"
+                                        class="chip-btn px-1.5 py-0.5 rounded-md border text-amber-600 dark:text-amber-400 font-bold bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/20">
+                                    Today
+                                </button>
+                                <button type="button" onclick="setQuickDueDate('tomorrow')"
+                                        class="chip-btn px-1.5 py-0.5 rounded-md border text-sky-600 dark:text-sky-400 font-bold bg-sky-500/10 border-sky-500/30 hover:bg-sky-500/20">
+                                    Tmrw
+                                </button>
+                                <button type="button" onclick="setQuickDueDate('next-week')"
+                                        class="chip-btn px-1.5 py-0.5 rounded-md border text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-500/10 border-indigo-500/30 hover:bg-indigo-500/20">
+                                    +7d
+                                </button>
+                                <button type="button" onclick="setQuickDueDate('clear')" id="btn-clear-date"
+                                        class="chip-btn px-1.5 py-0.5 rounded-md border text-slate-400 font-mono hover:text-rose-500 hidden"
+                                        title="Clear date">
+                                    ✕
+                                </button>
+                            </div>
                         </div>
 
+                        <!-- Category Tag Input -->
                         <div class="flex items-center gap-1.5 text-[11px]" style="color: var(--text-secondary)">
                             <span style="color: var(--text-muted)">tag:</span>
                             <input type="text" name="category" id="task-category-input" placeholder="e.g. Core"
-                                   class="rounded-lg px-2 py-0.5 border outline-none w-24 glass-panel"
+                                   class="rounded-lg px-2 py-0.5 border outline-none w-20 sm:w-24 glass-panel"
                                    style="border-color: var(--glass-border); color: var(--text-secondary)">
                         </div>
 
@@ -1064,8 +1207,9 @@
                     </div>
                 @else
                     @foreach($todos as $todo)
-                        <div class="task-card task-stagger group rounded-2xl p-4" id="todo-row-{{ $todo->id }}"
+                        <div class="task-card task-stagger group rounded-2xl p-4 cursor-pointer outline-none" id="todo-row-{{ $todo->id }}"
                              data-id="{{ $todo->id }}" data-priority="{{ $todo->priority }}" data-completed="{{ $todo->completed ? 'true' : 'false' }}"
+                             tabindex="0" onclick="selectTaskCard({{ $todo->id }}, false)"
                              style="animation-delay: {{ $loop->index * 0.05 }}s;">
                             
                             <div class="flex items-start gap-3.5" id="view-mode-{{ $todo->id }}">
@@ -1105,6 +1249,10 @@
                                                 {{ $todo->isDueToday() ? 'Today' : ($todo->isOverdue() ? 'Overdue' : $todo->due_date->format('M j')) }}
                                             </span>
                                         @endif
+
+                                        <span id="vim-pill-{{ $todo->id }}" class="hidden font-mono text-[9px] px-1.5 py-0.5 rounded-md bg-indigo-500/20 text-indigo-400 border border-indigo-500/40 font-bold animate-pulse">
+                                            [J/K active]
+                                        </span>
                                     </div>
 
                                     @if($todo->description)
@@ -1213,10 +1361,40 @@
                     <span>➕ Create new task</span>
                     <kbd class="text-[10px] opacity-60">N</kbd>
                 </button>
+                <button type="button" onclick="navigateTasks(1); closeCommandPalette();"
+                        class="w-full flex items-center justify-between p-2.5 rounded-xl text-left hover:bg-indigo-500/15 hover:text-indigo-400 transition font-bold">
+                    <span>⌨️ Vim Navigation (Select Task)</span>
+                    <kbd class="text-[10px] opacity-60">J / K</kbd>
+                </button>
                 <button type="button" onclick="toggleLofiMusic(); closeCommandPalette();"
                         class="w-full flex items-center justify-between p-2.5 rounded-xl text-left hover:bg-indigo-500/15 hover:text-indigo-400 transition font-bold">
                     <span>🎵 Play / Pause Lo-Fi Beats</span>
                     <kbd class="text-[10px] opacity-60">M</kbd>
+                </button>
+                <button type="button" onclick="setLofiTrack('cafe'); if(!isLofiPlaying) toggleLofiMusic(); closeCommandPalette();"
+                        class="w-full flex items-center justify-between p-2.5 rounded-xl text-left hover:bg-indigo-500/15 hover:text-indigo-400 transition font-bold">
+                    <span>☕️ Switch to Rainy Cafe Lo-Fi (72 BPM)</span>
+                    <kbd class="text-[10px] opacity-60">Track 1</kbd>
+                </button>
+                <button type="button" onclick="setLofiTrack('midnight'); if(!isLofiPlaying) toggleLofiMusic(); closeCommandPalette();"
+                        class="w-full flex items-center justify-between p-2.5 rounded-xl text-left hover:bg-indigo-500/15 hover:text-indigo-400 transition font-bold">
+                    <span>🌌 Switch to Midnight Nebula Lo-Fi (52 BPM)</span>
+                    <kbd class="text-[10px] opacity-60">Track 2</kbd>
+                </button>
+                <button type="button" onclick="exportTasksJSON(); closeCommandPalette();"
+                        class="w-full flex items-center justify-between p-2.5 rounded-xl text-left hover:bg-amber-500/15 hover:text-amber-400 transition font-bold">
+                    <span>📥 Export Tasks to JSON</span>
+                    <kbd class="text-[10px] opacity-60">Export</kbd>
+                </button>
+                <button type="button" onclick="exportTasksMarkdown(); closeCommandPalette();"
+                        class="w-full flex items-center justify-between p-2.5 rounded-xl text-left hover:bg-sky-500/15 hover:text-sky-400 transition font-bold">
+                    <span>📝 Export Tasks to Markdown</span>
+                    <kbd class="text-[10px] opacity-60">Export</kbd>
+                </button>
+                <button type="button" onclick="openImportModal(); closeCommandPalette();"
+                        class="w-full flex items-center justify-between p-2.5 rounded-xl text-left hover:bg-duo-green/15 hover:text-duo-green transition font-bold">
+                    <span>📤 Import Tasks (JSON)</span>
+                    <kbd class="text-[10px] opacity-60">I</kbd>
                 </button>
                 <button type="button" onclick="toggleFocusMode(); closeCommandPalette();"
                         class="w-full flex items-center justify-between p-2.5 rounded-xl text-left hover:bg-emerald-500/15 hover:text-emerald-400 transition font-bold">
@@ -1329,10 +1507,26 @@
                 </h3>
                 <button type="button" onclick="toggleShortcutsModal()" class="font-mono text-sm hover:opacity-75" style="color: var(--text-muted)">✕</button>
             </div>
-            <div class="space-y-2 font-mono text-xs">
+            <div class="space-y-2 font-mono text-xs max-h-80 overflow-y-auto pr-1">
                 <div class="flex justify-between items-center py-1">
                     <span style="color: var(--text-secondary)">Command Palette</span>
                     <kbd class="px-2 py-0.5 rounded border" style="background: var(--tag-glass); border-color: var(--glass-border); color: var(--text-primary)">⌘K / Ctrl+K</kbd>
+                </div>
+                <div class="flex justify-between items-center py-1">
+                    <span style="color: var(--text-secondary)">Vim Next / Prev Task</span>
+                    <kbd class="px-2 py-0.5 rounded border" style="background: var(--tag-glass); border-color: var(--glass-border); color: var(--text-primary)">J / K or ↓ / ↑</kbd>
+                </div>
+                <div class="flex justify-between items-center py-1">
+                    <span style="color: var(--text-secondary)">Toggle Selected Task</span>
+                    <kbd class="px-2 py-0.5 rounded border" style="background: var(--tag-glass); border-color: var(--glass-border); color: var(--text-primary)">Space or X</kbd>
+                </div>
+                <div class="flex justify-between items-center py-1">
+                    <span style="color: var(--text-secondary)">Edit Selected Task</span>
+                    <kbd class="px-2 py-0.5 rounded border" style="background: var(--tag-glass); border-color: var(--glass-border); color: var(--text-primary)">E</kbd>
+                </div>
+                <div class="flex justify-between items-center py-1">
+                    <span style="color: var(--text-secondary)">Delete Selected Task</span>
+                    <kbd class="px-2 py-0.5 rounded border" style="background: var(--tag-glass); border-color: var(--glass-border); color: var(--text-primary)"># or Delete</kbd>
                 </div>
                 <div class="flex justify-between items-center py-1">
                     <span style="color: var(--text-secondary)">New Task Focus</span>
@@ -1351,6 +1545,10 @@
                     <kbd class="px-2 py-0.5 rounded border" style="background: var(--tag-glass); border-color: var(--glass-border); color: var(--text-primary)">F</kbd>
                 </div>
                 <div class="flex justify-between items-center py-1">
+                    <span style="color: var(--text-secondary)">Import Tasks (JSON)</span>
+                    <kbd class="px-2 py-0.5 rounded border" style="background: var(--tag-glass); border-color: var(--glass-border); color: var(--text-primary)">I</kbd>
+                </div>
+                <div class="flex justify-between items-center py-1">
                     <span style="color: var(--text-secondary)">Toggle Light / Dark Mode</span>
                     <kbd class="px-2 py-0.5 rounded border" style="background: var(--tag-glass); border-color: var(--glass-border); color: var(--text-primary)">T</kbd>
                 </div>
@@ -1363,8 +1561,75 @@
                     <kbd class="px-2 py-0.5 rounded border" style="background: var(--tag-glass); border-color: var(--glass-border); color: var(--text-primary)">P</kbd>
                 </div>
             </div>
-            <button type="button" onclick="toggleShortcutsModal()" class="mt-5 w-full duo-btn-glass py-2.5 rounded-xl font-bold text-xs" style="color: var(--text-primary)">
+            <button type="button" onclick="toggleShortcutsModal()" class="mt-4 w-full duo-btn-glass py-2.5 rounded-xl font-bold text-xs" style="color: var(--text-primary)">
                 Got it
+            </button>
+        </div>
+    </div>
+
+    <!-- Task Import Modal -->
+    <div id="import-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="rounded-3xl max-w-md w-full p-6 shadow-2xl relative border animate-spring-in glass-panel"
+             style="border-color: var(--glass-border);">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b" style="border-color: var(--glass-border-subtle)">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">📤</span>
+                    <div>
+                        <h3 class="text-sm font-extrabold" style="color: var(--text-primary)">Import Tasks</h3>
+                        <p class="text-[9px] font-mono text-indigo-400 font-bold">Paste JSON or upload a .json export file</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeImportModal()" class="font-mono text-sm hover:opacity-75" style="color: var(--text-muted)">✕</button>
+            </div>
+
+            <form id="import-tasks-form" onsubmit="handleImportTasks(event)" class="space-y-4">
+                <div>
+                    <label class="block text-[11px] font-mono font-bold mb-1.5" style="color: var(--text-secondary)">Upload JSON File:</label>
+                    <input type="file" id="import-file-input" accept=".json,application/json"
+                           class="w-full text-xs font-mono rounded-xl p-2 border outline-none glass-panel file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-500/20 file:text-indigo-400 cursor-pointer"
+                           style="border-color: var(--glass-border); color: var(--text-primary)">
+                </div>
+
+                <div class="text-center font-mono text-[10px] text-slate-400 font-bold">— OR PASTE RAW JSON —</div>
+
+                <div>
+                    <textarea id="import-json-text" rows="5" placeholder='[{"title": "Ship v2 release", "priority": "high", "category": "Dev"}]'
+                              class="w-full text-xs font-mono rounded-xl p-3 border outline-none focus:ring-2 focus:ring-indigo-500/30 glass-panel"
+                              style="border-color: var(--glass-border); color: var(--text-primary)"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-1">
+                    <button type="button" onclick="closeImportModal()" class="px-3 py-1.5 font-mono text-xs hover:underline" style="color: var(--text-muted)">Cancel</button>
+                    <button type="submit" id="btn-submit-import" class="duo-btn-green text-slate-950 font-black text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-md">
+                        <span>Import Tasks 🚀</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Duolingo Level-Up Celebration Modal -->
+    <div id="level-up-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl relative animate-combo-burst border glass-panel"
+             style="border-color: #58cc02;">
+            <div class="w-16 h-16 mx-auto mb-2 text-5xl animate-mascot-cheer">
+                🏆
+            </div>
+            <div class="inline-block px-3 py-1 rounded-full bg-duo-green/20 text-duo-green font-mono text-[10px] font-black tracking-widest uppercase mb-2">
+                Level Up Achieved!
+            </div>
+            <h3 class="text-xl font-black mb-1" style="color: var(--text-primary)">
+                You Reached Level <span id="modal-level-val">4</span>!
+            </h3>
+            <p class="text-xs mb-4" id="modal-level-desc" style="color: var(--text-secondary)">
+                Outstanding discipline! Your focus is sharper than ever. Duo-Fay awarded you an extra Streak Freeze shield!
+            </p>
+            <div class="font-mono text-lg font-black text-amber-500 mb-5 tracking-tight flex items-center justify-center gap-2">
+                <span>⚡️</span> <span id="modal-level-title">Obsidian Champion</span>
+            </div>
+            <button type="button" onclick="closeLevelUpModal()"
+                   class="duo-btn-green w-full py-3 rounded-2xl text-slate-950 font-black text-xs uppercase tracking-wider shadow-md">
+                Keep Crushing It! 🔥
             </button>
         </div>
     </div>
@@ -1408,40 +1673,110 @@
             window.addEventListener(evt, unlockAudioSafely, { passive: true });
         });
 
-        // 🎵 GENERATIVE LO-FI MUSIC ENGINE
-        // Dreamy chord progression: Dm9 -> G13 -> Cmaj9 -> Am9
-        const lofiChords = [
-            [146.83, 174.61, 220.00, 261.63, 329.63], // Dm9 (D3, F3, A3, C4, E4)
-            [98.00, 174.61, 246.94, 329.63, 440.00],  // G13 (G2, F3, B3, E4, A4)
-            [130.81, 164.81, 196.00, 246.94, 293.66], // Cmaj9 (C3, E3, G3, B3, D4)
-            [110.00, 196.00, 261.63, 329.63, 493.88]  // Am9 (A2, G3, C4, E4, B4)
+        // ==========================================================================
+        // 🎵 DUAL GENERATIVE LO-FI MUSIC ENGINE & ACOUSTIC MASTER GRAPH
+        // ==========================================================================
+        let currentLofiTrack = localStorage.getItem('fay_lofi_track') || 'cafe';
+        let lofiVolume = parseFloat(localStorage.getItem('fay_lofi_vol') || '0.75');
+        let lofiMasterGainNode = null;
+
+        function getLofiMasterGain() {
+            const ctx = getAudioContext();
+            if (!ctx) return null;
+            if (!lofiMasterGainNode) {
+                lofiMasterGainNode = ctx.createGain();
+                lofiMasterGainNode.gain.setValueAtTime(lofiVolume, ctx.currentTime);
+                lofiMasterGainNode.connect(ctx.destination);
+            }
+            return lofiMasterGainNode;
+        }
+
+        function setLofiVolume(val) {
+            lofiVolume = Math.max(0, Math.min(1, val / 100));
+            localStorage.setItem('fay_lofi_vol', lofiVolume);
+            const lbl = document.getElementById('lofi-volume-label');
+            if (lbl) lbl.textContent = `${Math.round(lofiVolume * 100)}%`;
+            if (lofiMasterGainNode && audioCtx) {
+                lofiMasterGainNode.gain.setValueAtTime(lofiVolume, audioCtx.currentTime);
+            }
+        }
+
+        // Track A: Rainy Cafe (72 BPM) - Dm9 -> G13 -> Cmaj9 -> Am9
+        const cafeChords = [
+            [146.83, 174.61, 220.00, 261.63, 329.63], // Dm9
+            [98.00, 174.61, 246.94, 329.63, 440.00],  // G13
+            [130.81, 164.81, 196.00, 246.94, 293.66], // Cmaj9
+            [110.00, 196.00, 261.63, 329.63, 493.88]  // Am9
         ];
-        const lofiMelodyNotes = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50]; // Pentatonic bells
+        const cafeMelody = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50];
+
+        // Track B: Midnight Nebula (52 BPM) - Fmaj9 -> Em7 -> Dm9 -> Cmaj7
+        const midnightChords = [
+            [174.61, 220.00, 261.63, 329.63, 392.00], // Fmaj9
+            [164.81, 196.00, 246.94, 293.66, 392.00], // Em7
+            [146.83, 174.61, 220.00, 261.63, 349.23], // Dm9
+            [130.81, 164.81, 196.00, 246.94, 392.00]  // Cmaj7
+        ];
+        const midnightMelody = [392.00, 440.00, 523.25, 659.25, 783.99, 1046.50, 1174.66];
+
+        function setLofiTrack(track) {
+            unlockAudioSafely();
+            currentLofiTrack = track;
+            localStorage.setItem('fay_lofi_track', track);
+            lofiChordIndex = 0;
+
+            const btnCafe = document.getElementById('track-btn-cafe');
+            const btnMid = document.getElementById('track-btn-midnight');
+            const bpmText = document.getElementById('lofi-bpm-text');
+
+            if (track === 'cafe') {
+                if (btnCafe) btnCafe.className = 'py-1 px-1.5 rounded-lg border text-[10px] font-mono font-bold transition flex items-center justify-center gap-1 bg-indigo-500/15 border-indigo-500/40 text-indigo-400';
+                if (btnMid) btnMid.className = 'py-1 px-1.5 rounded-lg border text-[10px] font-mono font-bold transition flex items-center justify-center gap-1 text-slate-400 border-transparent hover:border-slate-500/30';
+                if (bpmText) bpmText.textContent = '72 BPM';
+            } else {
+                if (btnMid) btnMid.className = 'py-1 px-1.5 rounded-lg border text-[10px] font-mono font-bold transition flex items-center justify-center gap-1 bg-purple-500/15 border-purple-500/40 text-purple-400';
+                if (btnCafe) btnCafe.className = 'py-1 px-1.5 rounded-lg border text-[10px] font-mono font-bold transition flex items-center justify-center gap-1 text-slate-400 border-transparent hover:border-slate-500/30';
+                if (bpmText) bpmText.textContent = '52 BPM';
+            }
+
+            if (isLofiPlaying) {
+                clearInterval(lofiInterval);
+                playLofiChord();
+                const intervalTime = currentLofiTrack === 'cafe' ? 3800 : 4900;
+                lofiInterval = setInterval(playLofiChord, intervalTime);
+            }
+        }
 
         function playLofiChord() {
             if (!isLofiPlaying) return;
             const ctx = getAudioContext();
             if (!ctx) return;
 
-            const chord = lofiChords[lofiChordIndex];
-            lofiChordIndex = (lofiChordIndex + 1) % lofiChords.length;
+            const masterGain = getLofiMasterGain();
+            const chords = currentLofiTrack === 'cafe' ? cafeChords : midnightChords;
+            const melodyNotes = currentLofiTrack === 'cafe' ? cafeMelody : midnightMelody;
+            const cutoffFreq = currentLofiTrack === 'cafe' ? 650 : 420;
+
+            const chord = chords[lofiChordIndex];
+            lofiChordIndex = (lofiChordIndex + 1) % chords.length;
 
             const now = ctx.currentTime;
             const filter = ctx.createBiquadFilter();
             filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(650, now);
+            filter.frequency.setValueAtTime(cutoffFreq, now);
             filter.Q.setValueAtTime(1.5, now);
-            filter.connect(ctx.destination);
+            filter.connect(masterGain || ctx.destination);
 
             chord.forEach((freq, i) => {
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
 
-                osc.type = i % 2 === 0 ? 'sine' : 'triangle';
+                osc.type = currentLofiTrack === 'cafe' ? (i % 2 === 0 ? 'sine' : 'triangle') : 'sine';
                 osc.frequency.setValueAtTime(freq, now + i * 0.03);
 
+                const peakVol = currentLofiTrack === 'cafe' ? 0.045 : 0.038;
                 gain.gain.setValueAtTime(0, now + i * 0.03);
-                gain.gain.linearRampToValueAtTime(0.045, now + i * 0.03 + 0.3);
+                gain.gain.linearRampToValueAtTime(peakVol, now + i * 0.03 + 0.35);
                 gain.gain.exponentialRampToValueAtTime(0.0005, now + 3.8);
 
                 osc.connect(gain);
@@ -1452,16 +1787,16 @@
             });
 
             // Random delicate melody chime
-            if (Math.random() > 0.3) {
-                const melFreq = lofiMelodyNotes[Math.floor(Math.random() * lofiMelodyNotes.length)];
-                const melTime = now + 1.2 + Math.random() * 1.2;
+            if (Math.random() > 0.28) {
+                const melFreq = melodyNotes[Math.floor(Math.random() * melodyNotes.length)];
+                const melTime = now + 1.2 + Math.random() * 1.3;
                 const mOsc = ctx.createOscillator();
                 const mGain = ctx.createGain();
                 mOsc.type = 'sine';
                 mOsc.frequency.setValueAtTime(melFreq, melTime);
 
                 mGain.gain.setValueAtTime(0, melTime);
-                mGain.gain.linearRampToValueAtTime(0.03, melTime + 0.05);
+                mGain.gain.linearRampToValueAtTime(0.028, melTime + 0.06);
                 mGain.gain.exponentialRampToValueAtTime(0.0001, melTime + 1.2);
 
                 mOsc.connect(mGain);
@@ -1475,6 +1810,7 @@
             const ctx = getAudioContext();
             if (!ctx) return;
 
+            const masterGain = getLofiMasterGain();
             const bufferSize = ctx.sampleRate * 2;
             const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
             const data = buffer.getChannelData(0);
@@ -1496,7 +1832,7 @@
 
             noise.connect(filter);
             filter.connect(gain);
-            gain.connect(ctx.destination);
+            gain.connect(masterGain || ctx.destination);
             noise.start();
 
             lofiVinylNode = { source: noise, gain: gain };
@@ -1529,7 +1865,8 @@
 
                 startVinylAtmosphere();
                 playLofiChord();
-                lofiInterval = setInterval(playLofiChord, 3800);
+                const intervalTime = currentLofiTrack === 'cafe' ? 3800 : 4900;
+                lofiInterval = setInterval(playLofiChord, intervalTime);
             } else {
                 if (statusText) statusText.textContent = 'Play Lo-Fi Beats';
                 if (playIcon) playIcon.textContent = '▶';
@@ -1539,6 +1876,24 @@
                 clearInterval(lofiInterval);
                 stopVinylAtmosphere();
             }
+        }
+
+        // Soft acoustic tick for keyboard navigation
+        function playSoftTick() {
+            if (!isAudioEnabled) return;
+            const ctx = getAudioContext();
+            if (!ctx) return;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(800, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.04);
+            gain.gain.setValueAtTime(0.08, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.04);
         }
 
         // Duolingo Signature Major Chime on Task Complete
@@ -1878,7 +2233,8 @@
             const title = titleInput.value.trim();
             if (!title) return;
 
-            const priority = priSelect ? priSelect.value : 'medium';
+            const priValInput = document.getElementById('task-priority-val');
+            const priority = priValInput ? priValInput.value : (priSelect ? priSelect.value : 'medium');
             const due_date = dateInput ? dateInput.value : '';
             const category = catInput ? catInput.value.trim() : '';
             const description = descInput ? descInput.value.trim() : '';
@@ -1893,6 +2249,12 @@
 
             // 3. Clear inputs safely
             titleInput.value = '';
+            if (dateInput) {
+                dateInput.value = '';
+                const clrBtn = document.getElementById('btn-clear-date');
+                if (clrBtn) clrBtn.classList.add('hidden');
+            }
+            if (catInput) catInput.value = '';
             if (descInput) descInput.value = '';
             const notesField = document.getElementById('notes-field');
             if (notesField) notesField.classList.add('hidden');
@@ -1933,11 +2295,13 @@
                     if (emptyState) emptyState.remove();
 
                     const card = document.createElement('div');
-                    card.className = 'task-card animate-spring-in group rounded-2xl p-4';
+                    card.className = 'task-card animate-spring-in group rounded-2xl p-4 cursor-pointer outline-none';
                     card.id = `todo-row-${todo.id}`;
                     card.setAttribute('data-id', todo.id);
                     card.setAttribute('data-priority', todo.priority);
                     card.setAttribute('data-completed', 'false');
+                    card.setAttribute('tabindex', '0');
+                    card.setAttribute('onclick', `selectTaskCard(${todo.id}, false)`);
 
                     let priBadge = todo.priority === 'high' 
                         ? '<span class="font-mono text-[9px] px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-500 border border-rose-500/30 font-black tracking-tight">HIGH</span>'
@@ -1964,6 +2328,7 @@
                                     <span id="title-text-${todo.id}" class="text-sm font-bold tracking-tight break-words" style="color: var(--text-primary);">${todo.title}</span>
                                     ${catBadge}
                                     ${dateBadge}
+                                    <span id="vim-pill-${todo.id}" class="hidden font-mono text-[9px] px-1.5 py-0.5 rounded-md bg-indigo-500/20 text-indigo-400 border border-indigo-500/40 font-bold animate-pulse">[J/K active]</span>
                                 </div>
                                 ${descHtml}
                             </div>
@@ -2417,6 +2782,330 @@
             }
         }
 
+        // ==========================================================================
+        // VIM / LINEAR KEYBOARD NAVIGATION & SELECTION ENGINE
+        // ==========================================================================
+        let currentSelectedTaskId = null;
+
+        function getVisibleTaskIds() {
+            return Array.from(document.querySelectorAll('#tasks-container .task-card'))
+                .map(el => parseInt(el.getAttribute('data-id'), 10))
+                .filter(Boolean);
+        }
+
+        function selectTaskCard(id, shouldScroll = true) {
+            unlockAudioSafely();
+            if (currentSelectedTaskId && currentSelectedTaskId !== id) {
+                const prevRow = document.getElementById(`todo-row-${currentSelectedTaskId}`);
+                const prevPill = document.getElementById(`vim-pill-${currentSelectedTaskId}`);
+                if (prevRow) prevRow.classList.remove('task-card-focused');
+                if (prevPill) prevPill.classList.add('hidden');
+            }
+
+            currentSelectedTaskId = id;
+            const row = document.getElementById(`todo-row-${id}`);
+            const pill = document.getElementById(`vim-pill-${id}`);
+            if (row) {
+                row.classList.add('task-card-focused');
+                if (pill) pill.classList.remove('hidden');
+                if (shouldScroll) {
+                    row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+            playSoftTick();
+        }
+
+        function navigateTasks(delta) {
+            unlockAudioSafely();
+            const ids = getVisibleTaskIds();
+            if (!ids.length) return;
+
+            let idx = ids.indexOf(currentSelectedTaskId);
+            if (idx === -1) {
+                idx = delta > 0 ? 0 : ids.length - 1;
+            } else {
+                idx = (idx + delta + ids.length) % ids.length;
+            }
+            selectTaskCard(ids[idx]);
+        }
+
+        function toggleSelectedTask() {
+            if (!currentSelectedTaskId) {
+                navigateTasks(1);
+                return;
+            }
+            const btn = document.getElementById(`check-btn-${currentSelectedTaskId}`);
+            if (btn) handleToggleAsync(currentSelectedTaskId, btn);
+        }
+
+        function editSelectedTask() {
+            if (!currentSelectedTaskId) {
+                navigateTasks(1);
+            }
+            if (currentSelectedTaskId) {
+                showEditMode(currentSelectedTaskId);
+            }
+        }
+
+        function deleteSelectedTask() {
+            if (!currentSelectedTaskId) return;
+            const idToDelete = currentSelectedTaskId;
+            const ids = getVisibleTaskIds();
+            const idx = ids.indexOf(idToDelete);
+            
+            const btn = document.querySelector(`#todo-row-${idToDelete} button[title="Delete Task"], #todo-row-${idToDelete} button[title="Delete"]`);
+            handleDeleteAsync(idToDelete, btn);
+
+            if (ids.length > 1) {
+                const nextIdx = (idx + 1) % ids.length;
+                const nextId = ids[nextIdx] === idToDelete ? ids[(idx - 1 + ids.length) % ids.length] : ids[nextIdx];
+                if (nextId && nextId !== idToDelete) {
+                    setTimeout(() => selectTaskCard(nextId), 100);
+                }
+            } else {
+                currentSelectedTaskId = null;
+            }
+        }
+
+        function deselectTask() {
+            if (currentSelectedTaskId) {
+                const prevRow = document.getElementById(`todo-row-${currentSelectedTaskId}`);
+                const prevPill = document.getElementById(`vim-pill-${currentSelectedTaskId}`);
+                if (prevRow) prevRow.classList.remove('task-card-focused');
+                if (prevPill) prevPill.classList.add('hidden');
+                currentSelectedTaskId = null;
+            }
+        }
+
+        // ==========================================================================
+        // QUICK METADATA CHIPS (PRIORITY & DUE DATE)
+        // ==========================================================================
+        function setTaskPriority(pri, btnEl) {
+            unlockAudioSafely();
+            const inputVal = document.getElementById('task-priority-val');
+            const selectEl = document.getElementById('task-priority-select');
+            if (inputVal) inputVal.value = pri;
+            if (selectEl) selectEl.value = pri;
+
+            document.querySelectorAll('.chip-pri').forEach(chip => chip.classList.remove('chip-pri-active'));
+            if (btnEl) btnEl.classList.add('chip-pri-active');
+            playTaskAddSound();
+        }
+
+        function setQuickDueDate(preset) {
+            unlockAudioSafely();
+            const dateInput = document.getElementById('task-due-date-input');
+            const clearBtn = document.getElementById('btn-clear-date');
+            if (!dateInput) return;
+
+            if (preset === 'clear') {
+                dateInput.value = '';
+                if (clearBtn) clearBtn.classList.add('hidden');
+                playSoftTick();
+                return;
+            }
+
+            const d = new Date();
+            if (preset === 'tomorrow') {
+                d.setDate(d.getDate() + 1);
+            } else if (preset === 'next-week') {
+                d.setDate(d.getDate() + 7);
+            }
+
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            dateInput.value = `${yyyy}-${mm}-${dd}`;
+            if (clearBtn) clearBtn.classList.remove('hidden');
+
+            dateInput.classList.add('ring-2', 'ring-duo-green');
+            setTimeout(() => dateInput.classList.remove('ring-2', 'ring-duo-green'), 600);
+            playTaskAddSound();
+        }
+
+        function handleDateInputChange(val) {
+            const clearBtn = document.getElementById('btn-clear-date');
+            if (clearBtn) {
+                if (val) clearBtn.classList.remove('hidden');
+                else clearBtn.classList.add('hidden');
+            }
+        }
+
+        // ==========================================================================
+        // EXPORT & IMPORT ENGINE (JSON & MARKDOWN)
+        // ==========================================================================
+        async function exportTasksJSON() {
+            unlockAudioSafely();
+            showLiveToast('Exporting tasks to JSON…');
+            try {
+                const res = await fetch("{{ route('todos.index') }}", {
+                    headers: { 'Accept': 'application/json' }
+                });
+                const data = await res.json();
+                const jsonStr = JSON.stringify(data, null, 2);
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `fay-tasks-export-${new Date().toISOString().slice(0, 10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                playFanfareSound();
+                showLiveToast('Downloaded fay-tasks-export.json!');
+            } catch (err) {
+                console.error(err);
+                showLiveToast('⚠️ Failed to export JSON.');
+            }
+        }
+
+        async function exportTasksMarkdown() {
+            unlockAudioSafely();
+            showLiveToast('Exporting tasks to Markdown…');
+            try {
+                const res = await fetch("{{ route('todos.index') }}", {
+                    headers: { 'Accept': 'application/json' }
+                });
+                const data = await res.json();
+                const todos = data.todos || [];
+                const nowStr = new Date().toISOString().slice(0, 10);
+                let md = `# Fay Tasks Export — ${nowStr}\n\n`;
+                md += `*Generated from Fay Tasks Glass Fluid Productivity Engine*\n\n`;
+                md += `## Tasks (${todos.length})\n\n`;
+                todos.forEach(t => {
+                    const check = t.completed ? '[x]' : '[ ]';
+                    const pri = t.priority ? `[${t.priority.toUpperCase()}]` : '';
+                    const cat = t.category ? `#${t.category}` : '';
+                    const due = t.due_date ? `(Due: ${t.due_date})` : '';
+                    md += `- ${check} ${t.title} ${pri} ${cat} ${due}\n`;
+                    if (t.description) {
+                        md += `  > ${t.description.replace(/\n/g, '\n  > ')}\n`;
+                    }
+                });
+                const blob = new Blob([md], { type: 'text/markdown' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `fay-tasks-${nowStr}.md`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                playFanfareSound();
+                showLiveToast('Downloaded fay-tasks.md!');
+            } catch (err) {
+                console.error(err);
+                showLiveToast('⚠️ Failed to export Markdown.');
+            }
+        }
+
+        function openImportModal() {
+            unlockAudioSafely();
+            document.getElementById('import-modal').classList.remove('hidden');
+        }
+
+        function closeImportModal() {
+            document.getElementById('import-modal').classList.add('hidden');
+        }
+
+        async function handleImportTasks(event) {
+            event.preventDefault();
+            unlockAudioSafely();
+            const btn = document.getElementById('btn-submit-import');
+            const fileInput = document.getElementById('import-file-input');
+            const jsonText = document.getElementById('import-json-text');
+
+            let payloadTodos = null;
+
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                try {
+                    const fileText = await fileInput.files[0].text();
+                    const parsed = JSON.parse(fileText);
+                    payloadTodos = parsed.todos || (Array.isArray(parsed) ? parsed : null);
+                } catch(e) {
+                    alert('Invalid JSON file format. Please check the file.');
+                    return;
+                }
+            } else if (jsonText && jsonText.value.trim()) {
+                try {
+                    const parsed = JSON.parse(jsonText.value.trim());
+                    payloadTodos = parsed.todos || (Array.isArray(parsed) ? parsed : null);
+                } catch(e) {
+                    alert('Invalid JSON syntax in text area. Please check formatting.');
+                    return;
+                }
+            } else {
+                alert('Please upload a .json file or paste raw JSON into the text area.');
+                return;
+            }
+
+            if (!payloadTodos || !payloadTodos.length) {
+                alert('No valid tasks array found in JSON.');
+                return;
+            }
+
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = 'Importing…';
+            }
+
+            try {
+                const response = await fetch("{{ route('todos.import') }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': CSRF_TOKEN,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ todos: payloadTodos })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    closeImportModal();
+                    triggerMegaConfetti();
+                    playFanfareSound();
+                    showLiveToast(`🎉 Successfully imported ${data.imported_count} tasks!`);
+                    setTimeout(() => window.location.reload(), 900);
+                } else {
+                    alert(data.message || 'Import failed.');
+                }
+            } catch(err) {
+                console.error(err);
+                alert('Network error while importing tasks.');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = 'Import Tasks 🚀';
+                }
+            }
+        }
+
+        // ==========================================================================
+        // LEVEL-UP CELEBRATION
+        // ==========================================================================
+        function closeLevelUpModal() {
+            document.getElementById('level-up-modal').classList.add('hidden');
+        }
+
+        function checkLevelUpCelebration(oldXP, newXP) {
+            const oldLevel = Math.floor(oldXP / 50) + 1;
+            const newLevel = Math.floor(newXP / 50) + 1;
+            if (newLevel > oldLevel) {
+                const modal = document.getElementById('level-up-modal');
+                const lvlVal = document.getElementById('modal-level-val');
+                const lvlTitle = document.getElementById('modal-level-title');
+                if (lvlVal) lvlVal.textContent = newLevel;
+                if (lvlTitle) {
+                    const titles = ['Focus Archer', 'Sprint Ninja', 'Flow Master', 'Obsidian Champion', 'Diamond Legend'];
+                    lvlTitle.textContent = titles[Math.min(titles.length - 1, newLevel - 1)];
+                }
+                if (modal) modal.classList.remove('hidden');
+                triggerMegaConfetti();
+                playFanfareSound();
+            }
+        }
+
         function initGamification() {
             let streak = parseInt(localStorage.getItem('fay_streak') || '3', 10);
             let xp = parseInt(localStorage.getItem('fay_xp') || '45', 10);
@@ -2440,13 +3129,22 @@
                 document.getElementById('user-rank-title').textContent = `Lvl ${level}: Focus Archer`;
             }
 
+            // Restore Lo-Fi volume & track
+            const volSlider = document.getElementById('lofi-volume-slider');
+            const volLabel = document.getElementById('lofi-volume-label');
+            if (volSlider) volSlider.value = Math.round(lofiVolume * 100);
+            if (volLabel) volLabel.textContent = `${Math.round(lofiVolume * 100)}%`;
+            setLofiTrack(currentLofiTrack);
+
             updateAudioButtonText();
             updateThemeIcons();
         }
 
         function addXP(amount) {
-            let xp = parseInt(localStorage.getItem('fay_xp') || '45', 10) + amount;
-            localStorage.setItem('fay_xp', xp);
+            const currentXP = parseInt(localStorage.getItem('fay_xp') || '45', 10);
+            const newXP = currentXP + amount;
+            localStorage.setItem('fay_xp', newXP);
+            checkLevelUpCelebration(currentXP, newXP);
             initGamification();
         }
 
@@ -2462,6 +3160,9 @@
                 closeCommandPalette();
                 closeMysteryChest();
                 closeLeaderboard();
+                closeImportModal();
+                closeLevelUpModal();
+                deselectTask();
                 const sm = document.getElementById('shortcuts-modal');
                 if (sm) sm.classList.add('hidden');
                 document.activeElement.blur();
@@ -2472,7 +3173,31 @@
                 return;
             }
 
-            if (e.key === 'n' || e.key === 'N') {
+            if (e.key === 'j' || e.key === 'J' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                navigateTasks(1);
+            } else if (e.key === 'k' || e.key === 'K' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                navigateTasks(-1);
+            } else if (e.key === ' ' || e.key === 'x' || e.key === 'X') {
+                if (currentSelectedTaskId) {
+                    e.preventDefault();
+                    toggleSelectedTask();
+                }
+            } else if (e.key === 'e' || e.key === 'E') {
+                if (currentSelectedTaskId) {
+                    e.preventDefault();
+                    editSelectedTask();
+                }
+            } else if (e.key === '#' || e.key === 'Delete' || e.key === 'Backspace') {
+                if (currentSelectedTaskId) {
+                    e.preventDefault();
+                    deleteSelectedTask();
+                }
+            } else if (e.key === 'i' || e.key === 'I') {
+                e.preventDefault();
+                openImportModal();
+            } else if (e.key === 'n' || e.key === 'N') {
                 e.preventDefault();
                 focusNewTask();
             } else if (e.key === '/') {

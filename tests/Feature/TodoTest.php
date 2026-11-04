@@ -262,4 +262,43 @@ class TodoTest extends TestCase
             ],
         ]);
     }
+
+    public function test_json_can_fetch_all_todos_and_stats(): void
+    {
+        Todo::create(['title' => 'Exportable task 1', 'priority' => 'high']);
+        Todo::create(['title' => 'Exportable task 2', 'priority' => 'low', 'completed' => true]);
+
+        $response = $this->getJson(route('todos.index'));
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'todos',
+            'stats' => ['total', 'completed', 'remaining', 'completionPercentage'],
+            'categories',
+        ]);
+        $this->assertCount(2, $response->json('todos'));
+    }
+
+    public function test_can_bulk_import_todos_via_json(): void
+    {
+        $payload = [
+            'todos' => [
+                ['title' => 'Imported Task 1', 'priority' => 'high', 'category' => 'Sprint'],
+                ['title' => 'Imported Task 2', 'priority' => 'medium', 'due_date' => '2026-12-01'],
+                ['title' => 'Imported Task 3', 'priority' => 'low', 'completed' => true],
+            ],
+        ];
+
+        $response = $this->postJson(route('todos.import'), $payload);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'imported_count' => 3,
+        ]);
+
+        $this->assertDatabaseHas('todos', ['title' => 'Imported Task 1', 'priority' => 'high', 'category' => 'Sprint']);
+        $this->assertDatabaseHas('todos', ['title' => 'Imported Task 2', 'priority' => 'medium']);
+        $this->assertDatabaseHas('todos', ['title' => 'Imported Task 3', 'priority' => 'low', 'completed' => true]);
+    }
 }
